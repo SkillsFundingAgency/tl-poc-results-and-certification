@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.8.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.0.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.0.0-rc4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Sfa.Poc.ResultsAndCertification.Dfe.Application\Sfa.Poc.ResultsAndCertification.Dfe.Application.csproj" />
+    <ProjectReference Include="..\Sfa.Poc.ResultsAndCertification.Dfe.Data\Sfa.Poc.ResultsAndCertification.Dfe.Data.csproj" />
+    <ProjectReference Include="..\Sfa.Poc.ResultsAndCertification.Dfe.Domain\Sfa.Poc.ResultsAndCertification.Dfe.Domain.csproj" />
+    <ProjectReference Include="..\Sfa.Poc.ResultsAndCertification.Dfe.Models\Sfa.Poc.ResultsAndCertification.Dfe.Models.csproj" />
+  </ItemGroup>
+
+</Project>
