@@ -1,0 +1,25 @@
+﻿@model Sfa.Poc.ResultsAndCertification.Configuration.Configuration.ResultsAndCertificationConfiguration
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+    <div class="text-center">
+
+        <h1>Results And Certification Configuration</h1>
+
+        <div>
+            <p>
+                <strong>Connection String:</strong> @Model.SqlConnectionString
+            </p>
+            <p>
+                <strong>WebApiBaseUrl:</strong> @Model.WebApiClientConfiguration.WebApiBaseUrl
+            </p>
+            <p>
+                <strong>ClientId:</strong> @Model.WebApiClientConfiguration.ClientId
+            </p>
+            <p>
+                <strong>ClientSecret:</strong> @Model.WebApiClientConfiguration.ClientSecret
+            </p>
+        </div>
+    </div>
