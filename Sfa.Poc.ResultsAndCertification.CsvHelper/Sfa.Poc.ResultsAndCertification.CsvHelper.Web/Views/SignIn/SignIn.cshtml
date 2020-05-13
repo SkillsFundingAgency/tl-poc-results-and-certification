@@ -1,0 +1,47 @@
+﻿@{
+    ViewBag.Title = "SignIn";
+}
+
+<main class="govuk-main-wrapper " id="main-content" role="main">
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl">DfE Sign-in</h1>
+
+            <p class="govuk-body">DfE Sign-in is the new way to access your DfE online services and has now replaced Secure Access.</p>
+
+        </div>
+    </div>
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h2 class="govuk-heading-m">Before you start</h2>
+
+            <p class="govuk-body">You'll need</p>
+
+            <ul class="govuk-list govuk-list--bullet">
+                <li><strong>An existing DfE Sign-in account.</strong> This will be the email address and password you created when you first accessed DfE Sign-in.</li>
+
+            </ul>
+        </div>
+    </div>
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            <div class="govuk-!-margin-top-2">
+                <a href="@Url.Action("SignIn", "SignIn" )" role="button" draggable="false" class="govuk-button govuk-button--start govuk-!-margin-top-2" data-module="govuk-button">
+                    Start now
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h2 class="govuk-heading-m">Before you start</h2>
+            <p class="govuk-body">You must be an approved T Levels Awarding Organisation or Provider to use this service.</p>
+
+            <p class="govuk-body">You must have a Department for Education Sign-in account</p>
+        </div>
+    </div>
+</main>
