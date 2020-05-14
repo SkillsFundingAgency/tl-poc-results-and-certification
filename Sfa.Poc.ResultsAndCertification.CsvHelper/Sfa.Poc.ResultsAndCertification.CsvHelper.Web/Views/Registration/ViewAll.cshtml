@@ -1,0 +1,65 @@
+﻿@model IEnumerable<Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Models.Registration>
+
+@{
+    ViewData["Title"] = "ViewAll";
+}
+
+<h1>ViewAll</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Uln)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Ukprn)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.StartDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Core)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Specialism1)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Specialism2)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Uln)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Ukprn)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.StartDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Core)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Specialism1)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Specialism2)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
+                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
+                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

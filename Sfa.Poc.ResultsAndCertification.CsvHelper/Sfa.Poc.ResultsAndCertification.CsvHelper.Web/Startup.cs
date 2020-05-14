@@ -78,7 +78,8 @@ namespace Sfa.Poc.ResultsAndCertification.Layout.Web
                 config.Filters.Add<AutoValidateAntiforgeryTokenAttribute>();
                 // TODO: Need to add custom exception filter
                 config.Filters.Add<CustomExceptionFilterAttribute>();
-            }).SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+            }).SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
+            .AddRazorRuntimeCompilation();
 
             //services.AddSession(options =>
             //{
