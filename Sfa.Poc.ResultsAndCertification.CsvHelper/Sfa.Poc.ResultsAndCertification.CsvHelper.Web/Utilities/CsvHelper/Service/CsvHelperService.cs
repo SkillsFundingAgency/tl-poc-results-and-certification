@@ -2,12 +2,10 @@
 using CsvHelper.Configuration;
 using Microsoft.AspNetCore.Http;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Models;
-using Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Utilities.CsvHelper.Mapper;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -19,23 +17,40 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Utilities.CsvHelper.Serv
         {
             try
             {
-                // TODO: more to explore on configs -  csv header shouldn't be a case-sensitive.
-                var config = new CsvConfiguration(CultureInfo.InvariantCulture); 
+                var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+                {
+                    HasHeaderRecord = true,
+                    PrepareHeaderForMatch = (string header, int index) => header.ToLower()
+                };
+
                 using var reader = new StreamReader(file.OpenReadStream(), Encoding.Default);
                 using var csv = new CsvReader(reader, config);
-                csv.Configuration.RegisterClassMap<RegistrationsMapper>();
 
-                // Option 1: Read all data at once and reject fully if any error found. 
+                // ****** Option 1: Read all data at once and reject fully if any error found. ****** 
+                /* csv.Configuration.RegisterClassMap<RegistrationsMapper>();
                 var records = csv.GetRecordsAsync<Registration>();
-                return await records.ToListAsync();
+                return await records.ToListAsync(); */
 
-                // Option 2: TODO: Read every row and return consolidated error report, but how? common mode?
+                //******  Option 2: Read every row and return consolidated error report.****** 
+                var result = new List<Registration>();
+                csv.Read();
+                csv.ReadHeader();
+                while (await csv.ReadAsync())
+                {
+                    var reg = new Registration();
+                    reg.Uln = reg.Validate<int>(csv, Constants.CsvHeaders.Uln);
+                    reg.Ukprn = reg.Validate<int>(csv, Constants.CsvHeaders.Ukprn);
+                    reg.StartDate = reg.Validate<DateTime>(csv, Constants.CsvHeaders.StartDate);
+                    reg.Core = reg.Validate<string>(csv, Constants.CsvHeaders.Core);
+                    reg.Specialism1 = reg.Validate<string>(csv, Constants.CsvHeaders.Specialism1);
+                    reg.Specialism2 = reg.Validate<string>(csv, Constants.CsvHeaders.Specialism2);
+
+                    result.Add(reg);
+                }
+
+                return result;
             }
             catch (UnauthorizedAccessException e)
-            {
-                throw new Exception(e.Message);
-            }
-            catch (FieldValidationException e)
             {
                 throw new Exception(e.Message);
             }
@@ -66,6 +81,5 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Utilities.CsvHelper.Serv
             //    cw.NextRecord();
             //}
         }
-
     }
 }

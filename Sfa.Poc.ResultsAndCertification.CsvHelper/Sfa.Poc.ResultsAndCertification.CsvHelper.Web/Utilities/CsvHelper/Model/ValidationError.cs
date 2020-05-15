@@ -1,0 +1,11 @@
+﻿namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Utilities.CsvHelper.Model
+{
+    public class ValidationError
+    {
+        public string FieldName { get; set; }
+        public string FieldValue { get; set; }
+        public int RowNum { get; set; }
+        public string RawRow { get; set; } 
+        public string ErrorMessage { get { return $"Row: {RowNum}, Column: {FieldName} has invalid data: {FieldValue}"; } }
+    }
+}

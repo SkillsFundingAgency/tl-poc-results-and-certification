@@ -1,10 +1,12 @@
 ﻿using CsvHelper.Configuration;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Models;
+using System;
 
 namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Utilities.CsvHelper.Mapper
 {
     public class RegistrationsMapper : ClassMap<Registration>
     {
+        //Note: Not in use as we are not bulk reading.
         public RegistrationsMapper()
         {
             Map(m => m.Uln).Name(Constants.CsvHeaders.Uln);

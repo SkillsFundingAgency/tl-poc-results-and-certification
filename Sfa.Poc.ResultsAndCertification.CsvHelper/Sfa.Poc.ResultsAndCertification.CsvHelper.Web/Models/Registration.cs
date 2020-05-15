@@ -1,15 +1,17 @@
 ﻿using CsvHelper.Configuration.Attributes;
+using Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Utilities.CsvHelper.Model;
+using System;
 
 namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Models
 {
-    public class Registration
+    public class Registration : ValidationState
     {
         [Name(Utilities.CsvHelper.Constants.CsvHeaders.Uln)]
         public long Uln { get; set; }
         [Name(Utilities.CsvHelper.Constants.CsvHeaders.Ukprn)]
         public long Ukprn { get; set; }
         [Name(Utilities.CsvHelper.Constants.CsvHeaders.StartDate)]
-        public string StartDate { get; set; } 
+        public DateTime StartDate { get; set; }
         [Name(Utilities.CsvHelper.Constants.CsvHeaders.Core)]
         public string Core { get; set; }
         [Name(Utilities.CsvHelper.Constants.CsvHeaders.Specialism1)]

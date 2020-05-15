@@ -88,6 +88,10 @@ namespace Sfa.Poc.ResultsAndCertification.Layout.Web
             //    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
             //});
 
+            services.Configure<CookieTempDataProviderOptions>(options => {
+                options.Cookie.IsEssential = true;
+            });
+
             services.AddSingleton(ResultsAndCertificationConfiguration);
             services.AddHttpClient<ITokenRefresher, TokenRefresher>();
             services.AddTransient<ITokenService, TokenService>();
