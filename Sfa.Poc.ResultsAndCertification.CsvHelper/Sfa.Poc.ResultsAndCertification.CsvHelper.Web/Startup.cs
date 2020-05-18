@@ -23,6 +23,8 @@ using System.Globalization;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Client.Interfaces;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Client.Clients;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Filters;
+using Sfa.Poc.ResultsAndCertification.CsvHelper.Web.WebConfigurationHelper;
+using Sfa.Tl.ResultsAndCertification.Web.WebConfigurationHelper;
 
 namespace Sfa.Poc.ResultsAndCertification.Layout.Web
 {
@@ -105,6 +107,8 @@ namespace Sfa.Poc.ResultsAndCertification.Layout.Web
             //services.AddHttpContextAccessor();
             services.AddWebAuthentication(ResultsAndCertificationConfiguration, _logger, _env);
             services.AddAuthorization();
+			
+			RegisterDependencies(services);
             
         }
 
@@ -159,6 +163,14 @@ namespace Sfa.Poc.ResultsAndCertification.Layout.Web
                 endpoints.MapDefaultControllerRoute();
                 //endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}");
             });
+        }
+
+        private void RegisterDependencies(IServiceCollection services)
+        {
+            //services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+            services.AddSingleton<IWebConfigurationService, WebConfigurationService>();
+            //services.AddTransient<ITlevelLoader, TlevelLoader>();
+            //services.AddTransient<IProviderLoader, ProviderLoader>();
         }
     }
 }

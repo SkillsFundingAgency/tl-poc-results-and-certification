@@ -1,6 +1,7 @@
 ﻿using CsvHelper;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Linq;
 
@@ -28,8 +29,17 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Utilities.CsvHelper.Mode
                     return (T)Convert.ChangeType(startDate, typeof(T));
                 }
 
-                // TODO: How to know what is the mandatory field.
                 var result = csv.GetField<T>(fieldName);
+
+                //var validationContext = new ValidationContext(result);
+                //var validationResult = new List<ValidationResult>();
+
+                //Validator.TryValidateProperty(result, validationContext, validationResult);
+                //if (validationResult.Count > 0)
+                //{
+                //    throw new Exception(validationResult.First().ErrorMessage);
+                //}
+
                 return result;
             }
             catch (CsvHelperException e)
@@ -44,7 +54,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Utilities.CsvHelper.Mode
             }
         }
 
-        private static ValidationError BuildError(ReadingContext context)
+        private static ValidationError BuildError(ReadingContext context, string message = "")
         {
             var fieldIndex = context.CurrentIndex;
             var error = new ValidationError

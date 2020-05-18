@@ -47,7 +47,9 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Controllers
             var validData = regdata.Where(x => x.IsValid);
             // if file validations are passed then proceed with db validations. 
 
-            
+            // Step: db-validations. 
+
+
             // Temp code for validation
             var errors = new List<ValidationError>();
             foreach(var item in invalidData)

@@ -17,13 +17,19 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Utilities.CsvHelper.Serv
         {
             try
             {
+                
                 var config = new CsvConfiguration(CultureInfo.InvariantCulture)
                 {
                     HasHeaderRecord = true,
                     PrepareHeaderForMatch = (string header, int index) => header.ToLower()
                 };
 
-                using var reader = new StreamReader(file.OpenReadStream(), Encoding.Default);
+                //var memorystream = new MemoryStream();
+                //file.CopyTo(memorystream);
+                //using var reader = new StreamReader(memorystream);
+                //using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
+
+                using var reader = new StreamReader(file.OpenReadStream());
                 using var csv = new CsvReader(reader, config);
 
                 // ****** Option 1: Read all data at once and reject fully if any error found. ****** 
@@ -47,6 +53,17 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Utilities.CsvHelper.Serv
 
                     result.Add(reg);
                 }
+
+                // Option 3: 
+                //csv.Configuration.RegisterClassMap<RegistrationsMapper>();
+                //while(await csv.ReadAsync()) 
+                //{
+                //    var record = csv.GetRecord<Registration>();
+                //    if (record != null) 
+                //    {
+                //        result.Add(record);
+                //    }
+                //}
 
                 return result;
             }

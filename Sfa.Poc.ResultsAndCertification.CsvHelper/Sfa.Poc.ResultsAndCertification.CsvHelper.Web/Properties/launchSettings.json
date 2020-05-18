@@ -15,7 +15,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "Sfa.Tl.ResultsAndCertification.Web": {
+    "Sfa.Poc.ResultsAndCertification.CsvHelper.Web": {
       "commandName": "Project",
       "launchBrowser": true,
       "applicationUrl": "https://localhost:44345;http://localhost:5000",
