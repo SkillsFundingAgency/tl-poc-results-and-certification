@@ -12,20 +12,20 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Data
         {
         }
 
-        public virtual DbSet<TqRoute> TqRoutes { get; set; }
-        public virtual DbSet<TqPathway> TqPathways { get; set; }
-        public virtual DbSet<TqSpecialism> TqSpecialisms { get; set; }
-        public virtual DbSet<TqAwardingOrganisation> TqAwardingOrganisations { get; set; }
-        public virtual DbSet<Provider> Providers { get; set; }
-        public virtual DbSet<TqProvider> TqProviders { get; set; }
+        public virtual DbSet<TqRoute> TqRoute { get; set; }
+        public virtual DbSet<TqPathway> TqPathway { get; set; }
+        public virtual DbSet<TqSpecialism> TqSpecialism { get; set; }
+        public virtual DbSet<TqAwardingOrganisation> TqAwardingOrganisation { get; set; }
+        public virtual DbSet<Provider> Provider{ get; set; }
+        public virtual DbSet<TqProvider> TqProvider { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             //This will singularize all table names
-            foreach (IMutableEntityType entityType in modelBuilder.Model.GetEntityTypes())
-            {
-                entityType.Relational().TableName = entityType.DisplayName();
-            }
+            //foreach (IMutableEntityType entityType in modelBuilder.Model.GetEntityTypes())
+            //{
+            //    entityType.Relational().TableName = entityType.DisplayName();
+            //}
         }
     }
 }
