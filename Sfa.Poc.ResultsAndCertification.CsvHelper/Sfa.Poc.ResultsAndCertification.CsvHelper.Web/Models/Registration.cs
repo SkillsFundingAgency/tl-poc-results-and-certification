@@ -17,7 +17,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Models
 
         [Required]
         [Name(Utilities.CsvHelper.Constants.CsvHeaders.StartDate)]
-        public DateTime StartDate { get; set; }
+        public string StartDate { get; set; }
 
         [Required]
         [Name(Utilities.CsvHelper.Constants.CsvHeaders.Core)]

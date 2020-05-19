@@ -1,8 +1,6 @@
 ﻿using CsvHelper;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Globalization;
 using System.Linq;
 
 namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Utilities.CsvHelper.Model
@@ -21,13 +19,13 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Utilities.CsvHelper.Mode
         {
             try
             {
-                if (typeof(T) == typeof(DateTime))
-                {
-                    // Note: This may be an expensive. Need inputs if any alternative.
-                    var csvStartDate = csv.GetField<string>(fieldName);
-                    var startDate = DateTime.ParseExact(csvStartDate, "ddMMyyyy", CultureInfo.InvariantCulture);
-                    return (T)Convert.ChangeType(startDate, typeof(T));
-                }
+                //if (typeof(T) == typeof(DateTime))
+                //{
+                //    // Note: This may be an expensive. Need inputs if any alternative.
+                //    var csvStartDate = csv.GetField<string>(fieldName);
+                //    var startDate = DateTime.ParseExact(csvStartDate, "ddMMyyyy", CultureInfo.InvariantCulture);
+                //    return (T)Convert.ChangeType(startDate, typeof(T));
+                //}
 
                 var result = csv.GetField<T>(fieldName);
 

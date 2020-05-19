@@ -14,6 +14,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Controllers
     {
         private const string InvalidRegistrations = "InvalidRegistrations";
         private const string ValidationErrors = "ValidationErrors";
+        private const string ElapsedTime = "ElapsedTime";
 
         public IActionResult Index()
         {
@@ -30,7 +31,9 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> UploadAsync(RegistrationsFileViewModel model)
         {
-            // TODO: start timer
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+            watch.Start();
+
             if (!ModelState.IsValid)
             {
                 // 1. File meta info validation 
@@ -49,8 +52,11 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Controllers
 
             // Step: db-validations. 
 
+            watch.Stop();
 
             // Temp code for validation
+            ViewBag.ElapsedTime = watch.ElapsedMilliseconds;
+
             var errors = new List<ValidationError>();
             foreach(var item in invalidData)
                 errors.AddRange(item.ValidationErrors);

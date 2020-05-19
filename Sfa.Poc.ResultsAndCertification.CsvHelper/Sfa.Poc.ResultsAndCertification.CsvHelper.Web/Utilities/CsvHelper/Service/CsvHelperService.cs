@@ -2,6 +2,7 @@
 using CsvHelper.Configuration;
 using Microsoft.AspNetCore.Http;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Models;
+using Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Utilities.CsvHelper.Model;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -44,12 +45,13 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Utilities.CsvHelper.Serv
                 while (await csv.ReadAsync())
                 {
                     var reg = new Registration();
-                    reg.Uln = reg.Validate<int>(csv, Constants.CsvHeaders.Uln);
-                    reg.Ukprn = reg.Validate<int>(csv, Constants.CsvHeaders.Ukprn);
-                    reg.StartDate = reg.Validate<DateTime>(csv, Constants.CsvHeaders.StartDate);
-                    reg.Core = reg.Validate<string>(csv, Constants.CsvHeaders.Core);
-                    reg.Specialism1 = reg.Validate<string>(csv, Constants.CsvHeaders.Specialism1);
-                    reg.Specialism2 = reg.Validate<string>(csv, Constants.CsvHeaders.Specialism2);
+                        
+                        reg.Uln = reg.Validate<int>(csv, Constants.CsvHeaders.Uln);
+                        reg.Ukprn = reg.Validate<int>(csv, Constants.CsvHeaders.Ukprn);
+                        reg.StartDate = reg.Validate<string>(csv, Constants.CsvHeaders.StartDate);
+                        reg.Core = reg.Validate<string>(csv, Constants.CsvHeaders.Core);
+                        reg.Specialism1 = reg.Validate<string>(csv, Constants.CsvHeaders.Specialism1);
+                        reg.Specialism2 = reg.Validate<string>(csv, Constants.CsvHeaders.Specialism2);
 
                     result.Add(reg);
                 }
@@ -79,6 +81,20 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Utilities.CsvHelper.Serv
             {
                 throw new Exception(e.Message);
             }
+        }
+
+        private static ValidationError BuildError(ReadingContext context, string message = "")
+        {
+            var fieldIndex = context.CurrentIndex;
+            var error = new ValidationError
+            {
+                FieldName = context.HeaderRecord[fieldIndex],
+                FieldValue = context.Record[fieldIndex],
+                RowNum = context.Row,
+                RawRow = context.RawRecord
+            };
+
+            return error;
         }
 
         public async Task DownloadRegistrationsCsvAsync(IEnumerable<Registration> registrations, string path)

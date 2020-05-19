@@ -10,8 +10,11 @@
 <p> <a class="govuk-link"asp-action="GetRejectedData"> Download Rejected </a> </p>
 <p> <a class="govuk-link" asp-action="GetValidationErrors"> Show Errors </a> </p>
 
+
 <div class="govuk-body">
-    <table class="table">
+    <h2 class="govuk-heading-m"> Time taken to process: @ViewBag.ElapsedTime</h2>
+
+    @*<table class="table">
         <thead>
             <tr>
                 <th>
@@ -71,5 +74,5 @@
                 </tr>
             }
         </tbody>
-    </table>
+    </table>*@
 </div>
