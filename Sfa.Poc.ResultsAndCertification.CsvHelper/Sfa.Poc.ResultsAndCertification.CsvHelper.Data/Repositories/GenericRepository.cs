@@ -265,5 +265,29 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Data.Repositories
                 }
             }
         }
+
+        public virtual async Task<IList<T>> BulkReadAsync(IList<T> entities, params Expression<Func<T, object>>[] whereClauseProperties)
+        {
+            if (entities != null && entities.Count > 0)
+            {
+                try
+                {
+                    var properties = GetMemberNames(whereClauseProperties);
+                    await _dbContext.BulkReadAsync(entities, bulkConfig => bulkConfig.UpdateByProperties = properties);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex.Message, ex.InnerException);
+                    throw;
+                }
+            }
+            return entities;
+        }
+
+        private List<string> GetMemberNames(Expression<Func<T, object>>[] properties)
+        {
+            if (properties == null) return null;
+            return properties.Select(p => { return (p.Body as MemberExpression ?? ((UnaryExpression)p.Body).Operand as MemberExpression).Member.Name; }).ToList();
+        }
     }
 }
