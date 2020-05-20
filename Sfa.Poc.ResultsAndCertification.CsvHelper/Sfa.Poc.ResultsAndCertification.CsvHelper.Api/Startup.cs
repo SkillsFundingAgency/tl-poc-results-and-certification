@@ -11,6 +11,8 @@ using Microsoft.OpenApi.Models;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Extensions;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Infrastructure;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Configuration;
+using Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Interfaces;
+using Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Service;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Data;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Data.Interfaces;
@@ -151,6 +153,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api
         private static void RegisterApplicationServices(IServiceCollection services)
         {
             services.AddTransient<ICsvHelperService, CsvHelperService>();
+            services.AddTransient<IRegistrationService, RegistrationService>();
         }
     }
 }
