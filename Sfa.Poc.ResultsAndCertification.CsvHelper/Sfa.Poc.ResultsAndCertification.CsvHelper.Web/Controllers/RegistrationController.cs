@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Client.Interfaces;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Models;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Utilities.CsvHelper.Model;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Utilities.CsvHelper.Service;
@@ -12,9 +13,16 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Controllers
 {
     public class RegistrationController : Controller
     {
+        private readonly IResultsAndCertificationInternalApiClient _internalApiClient;
+
         private const string InvalidRegistrations = "InvalidRegistrations";
         private const string ValidationErrors = "ValidationErrors";
         private const string ElapsedTime = "ElapsedTime";
+
+        public RegistrationController(IResultsAndCertificationInternalApiClient internalApiClient)
+        {
+            _internalApiClient = internalApiClient;
+        }
 
         public IActionResult Index()
         {
@@ -26,6 +34,27 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Controllers
         {
             var model = new RegistrationsFileViewModel();
             return View(model);
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> BulkRegistrationsAsync(RegistrationsFileViewModel model)
+        {
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+            watch.Start();
+
+            if (!ModelState.IsValid)
+            {
+                return View("Upload", model);
+            }
+
+            var results = await _internalApiClient.ProcessBulkRegistrationsAsync(model.RegistrationFile);
+
+            watch.Stop();
+
+            // Temp code for validation
+            ViewBag.ElapsedTime = watch.ElapsedMilliseconds;
+            return View("ViewAll", results);
         }
 
         [HttpPost]

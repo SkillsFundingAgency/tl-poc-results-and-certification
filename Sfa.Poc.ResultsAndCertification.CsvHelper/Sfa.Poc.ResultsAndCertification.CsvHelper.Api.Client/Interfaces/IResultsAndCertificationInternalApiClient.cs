@@ -1,4 +1,5 @@
-﻿using Sfa.Poc.ResultsAndCertification.CsvHelper.Models;
+﻿using Microsoft.AspNetCore.Http;
+using Sfa.Poc.ResultsAndCertification.CsvHelper.Models;
 using System.Threading.Tasks;
 
 namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Client.Interfaces
@@ -6,5 +7,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Client.Interfaces
     public interface IResultsAndCertificationInternalApiClient
     {
         Task<RegisteredTqProviderDetails> GetRegisteredTqProviderInformation(int tqProviderId);
+
+        Task<BulkRegistrationResponse> ProcessBulkRegistrationsAsync(IFormFile registrationFile);
     }
 }

@@ -19,6 +19,7 @@ using Sfa.Poc.ResultsAndCertification.CsvHelper.Domain.Models;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Models.Configuration;
 using Microsoft.OpenApi.Models;
 using Microsoft.IdentityModel.Logging;
+using Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Service;
 
 namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api
 {
@@ -163,6 +164,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api
             services.AddTransient<ITqRouteService, TqRouteService>();
             services.AddTransient<ITqPathwayService, TqPathwayService>();
             services.AddTransient<ITqSpecialismService, TqSpecialismService>();
+            services.AddTransient<ICsvHelperService, CsvHelperService>();
         }
     }
 }
