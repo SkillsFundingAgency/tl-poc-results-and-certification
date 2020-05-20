@@ -90,4 +90,8 @@
     <Build Include="Tables\TqAwardingOrganisation.sql" />
     <Build Include="Tables\TqProvider.sql" />
   </ItemGroup>
+  <ItemGroup>
+    <Build Include="Tables\TqRegistration.sql" />
+    <Build Include="Tables\TqSpecialismRegistration.sql" />
+  </ItemGroup>
 </Project>

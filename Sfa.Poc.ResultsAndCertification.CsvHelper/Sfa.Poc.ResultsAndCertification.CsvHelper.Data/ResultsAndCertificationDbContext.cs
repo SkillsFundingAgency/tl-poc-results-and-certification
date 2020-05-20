@@ -18,5 +18,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Data
         public virtual DbSet<TqAwardingOrganisation> TqAwardingOrganisation { get; set; }
         public virtual DbSet<TqProvider> TqProvider { get; set; }
         public virtual DbSet<NotificationTemplate> NotificationTemplate { get; set; }
+        public virtual DbSet<TqRegistration> TqRegistration { get; set; }
+        public virtual DbSet<TqSpecialismRegistration> TqSpecialismRegistration { get; set; }
     }
 }
