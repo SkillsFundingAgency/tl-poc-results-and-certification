@@ -26,7 +26,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Controllers
         {
             var regdata = await _csvParserService.ReadDataAsync(registrationFile);
 
-            long ukPrn = 1024;
+            long ukPrn = 10009696;
             var aoTlevels = _registrationService.GetAllTLevelsByAoUkprn(ukPrn);
 
             return new BulkRegistrationResponse { Registrations = regdata };
