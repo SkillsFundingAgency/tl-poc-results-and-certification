@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using EFCore.BulkExtensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Data.Interfaces;
@@ -199,6 +200,70 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Data.Repositories
                 queryable = asendingorder ? queryable.OrderBy(orderBy) : queryable.OrderByDescending(orderBy);
 
             return queryable;
+        }
+
+
+        public virtual async Task BulkInsertAsync(IList<T> entities)
+        {
+            if (entities != null && entities.Count > 0)
+            {
+                using (var transaction = await _dbContext.Database.BeginTransactionAsync())
+                {
+                    try
+                    {
+                        await _dbContext.BulkInsertAsync(entities, config => config.UseTempDB = true);
+                        transaction.Commit();
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex.Message, ex.InnerException);
+                        transaction.Rollback();
+                        throw;
+                    }
+                }
+            }
+        }
+
+        public virtual async Task BulkUpdateAsync(IList<T> entities)
+        {
+            if (entities != null && entities.Count > 0)
+            {
+                using (var transaction = await _dbContext.Database.BeginTransactionAsync())
+                {
+                    try
+                    {
+                        await _dbContext.BulkUpdateAsync(entities, config => config.UseTempDB = true);
+                        transaction.Commit();
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex.Message, ex.InnerException);
+                        transaction.Rollback();
+                        throw;
+                    }
+                }
+            }
+        }
+
+        public virtual async Task BulkInsertOrUpdateAsync(IList<T> entities)
+        {
+            if (entities != null && entities.Count > 0)
+            {
+                using (var transaction = await _dbContext.Database.BeginTransactionAsync())
+                {
+                    try
+                    {
+                        await _dbContext.BulkInsertOrUpdateAsync(entities, config => { config.UseTempDB = true; });
+                        transaction.Commit();
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex.Message, ex.InnerException);
+                        transaction.Rollback();
+                        throw;
+                    }
+                }
+            }
         }
     }
 }

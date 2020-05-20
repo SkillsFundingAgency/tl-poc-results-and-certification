@@ -21,5 +21,10 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Data.Interfaces
         Task<T> GetSingleOrDefaultAsync(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] navigationPropertyPath);
         Task<TDto> GetSingleOrDefaultAsync<TDto>(Expression<Func<T, bool>> predicate, Expression<Func<T, TDto>> selector, Expression<Func<T, object>> orderBy = null, bool asendingorder = true, params Expression<Func<T, object>>[] navigationPropertyPath);
         Task<int> CountAsync(Expression<Func<T, bool>> predicate = null);
+
+        // Bulk Operations
+        Task BulkInsertAsync(IList<T> entities);
+        Task BulkUpdateAsync(IList<T> entities);
+        Task BulkInsertOrUpdateAsync(IList<T> entities);
     }
 }
