@@ -61,34 +61,33 @@
     <Folder Include="PreDeployment" />
   </ItemGroup>
   <ItemGroup>
-    <Build Include="Tables\TqAwardingOrganisation.sql" />
-    <Build Include="Tables\Provider.sql" />
-    <Build Include="Tables\TlRoute.sql" />
-    <Build Include="Tables\TlPathway.sql" />
-    <Build Include="Tables\TlSpecialism.sql" />
-    <Build Include="Tables\TqProvider.sql" />
-    <Build Include="Tables\TlPathwaySpecialismCombination.sql" />
-    <Build Include="Tables\TlPathwaySpecialismMar.sql" />
-  </ItemGroup>
-  <ItemGroup>
     <PostDeploy Include="PostDeployment\PostDeploy.sql" />
   </ItemGroup>
   <ItemGroup>
     <PreDeploy Include="PreDeployment\PreDeploy.sql" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="PostDeployment\SeedTqAwardingOrganisations.sql" />
-    <None Include="PostDeployment\SeedTlRoutes.sql" />
-    <None Include="PostDeployment\SeedTlPathways.sql" />
-    <None Include="PostDeployment\SeedTlSpecialisms.sql" />
-    <Build Include="Tables\TlMandatoryAdditionalRequirement.sql" />
-    <None Include="PostDeployment\SeedTlMandatoryAdditionalRequirement.sql" />
-    <None Include="PostDeployment\SeedTlPathwaySpecialismMar.sql" />
-    <None Include="PostDeployment\SeedTlPathwaySpecialismCombination.sql" />
-    <None Include="Sfa.Poc.ResultsAndCertification.Dfe.Database.Local.publish.xml" />
-    <None Include="Sfa.Poc.ResultsAndCertification.Dfe.Database.publish.xml" />
+    <None Include="Sfa.Poc.ResultsAndCertification.CsvHelper.Database.Local.publish.xml" />
+    <None Include="Sfa.Poc.ResultsAndCertification.CsvHelper.Database.publish.xml" />
   </ItemGroup>
   <ItemGroup>
-    <RefactorLog Include="Sfa.Poc.ResultsAndCertification.Dfe.Database.refactorlog" />
+    <RefactorLog Include="Sfa.Poc.ResultsAndCertification.CsvHelper.Database.refactorlog" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="PostDeployment\SeedNotificationTemplates.sql" />
+    <None Include="PostDeployment\SeedTlAwardingOrganisations.sql" />
+    <None Include="PostDeployment\SeedTlPathways.sql" />
+    <None Include="PostDeployment\SeedTlProviders.sql" />
+    <None Include="PostDeployment\SeedTlRoutes.sql" />
+    <None Include="PostDeployment\SeedTlSpecialisms.sql" />
+    <None Include="PostDeployment\SeedTqAwardingOrganisations.sql" />
+    <Build Include="Tables\NotificationTemplate.sql" />
+    <Build Include="Tables\TlAwardingOrganisation.sql" />
+    <Build Include="Tables\TlPathway.sql" />
+    <Build Include="Tables\TlProvider.sql" />
+    <Build Include="Tables\TlRoute.sql" />
+    <Build Include="Tables\TlSpecialism.sql" />
+    <Build Include="Tables\TqAwardingOrganisation.sql" />
+    <Build Include="Tables\TqProvider.sql" />
   </ItemGroup>
 </Project>

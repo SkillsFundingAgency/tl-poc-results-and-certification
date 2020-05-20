@@ -9,11 +9,10 @@ Post-Deployment Script Template
                SELECT * FROM [$(TableName)]					
 --------------------------------------------------------------------------------------
 */
-
-:r ".\SeedTqAwardingOrganisations.sql"
+:r ".\SeedTlAwardingOrganisations.sql"
 :r ".\SeedTlRoutes.sql"
 :r ".\SeedTlPathways.sql"
 :r ".\SeedTlSpecialisms.sql"
-:r ".\SeedTlPathwaySpecialismCombination.sql"
-:r ".\SeedTlMandatoryAdditionalRequirement.sql"
-:r ".\SeedTlPathwaySpecialismMar.sql"
+:r ".\SeedTqAwardingOrganisations.sql"
+:r ".\SeedNotificationTemplates.sql"
+:r ".\SeedTlProviders.sql"

@@ -1,6 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Domain.Models;
 
 namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Data
@@ -12,20 +10,13 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Data
         {
         }
 
-        public virtual DbSet<TqRoute> TqRoute { get; set; }
-        public virtual DbSet<TqPathway> TqPathway { get; set; }
-        public virtual DbSet<TqSpecialism> TqSpecialism { get; set; }
+        public virtual DbSet<TlAwardingOrganisation> TlAwardingOrganisation { get; set; }
+        public virtual DbSet<TlPathway> TlPathway { get; set; }
+        public virtual DbSet<TlProvider> TlProvider { get; set; }
+        public virtual DbSet<TlRoute> TlRoute { get; set; }
+        public virtual DbSet<TlSpecialism> TlSpecialism { get; set; }
         public virtual DbSet<TqAwardingOrganisation> TqAwardingOrganisation { get; set; }
-        public virtual DbSet<Provider> Provider{ get; set; }
         public virtual DbSet<TqProvider> TqProvider { get; set; }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            //This will singularize all table names
-            //foreach (IMutableEntityType entityType in modelBuilder.Model.GetEntityTypes())
-            //{
-            //    entityType.Relational().TableName = entityType.DisplayName();
-            //}
-        }
+        public virtual DbSet<NotificationTemplate> NotificationTemplate { get; set; }
     }
 }

@@ -1,25 +1,22 @@
-﻿using System;
-using AutoMapper;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Logging;
+using Microsoft.OpenApi.Models;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Extensions;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Infrastructure;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Configuration;
-using Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Interfaces;
-using Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services;
+using Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Service;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Data;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Data.Interfaces;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Data.Repositories;
-using Sfa.Poc.ResultsAndCertification.CsvHelper.Domain.Models;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Models.Configuration;
-using Microsoft.OpenApi.Models;
-using Microsoft.IdentityModel.Logging;
-using Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Service;
+using System;
 
 namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api
 {
@@ -148,22 +145,11 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api
 
         private static void RegisterRepositories(IServiceCollection services)
         {
-            services.AddTransient<IRepository<TqAwardingOrganisation>, GenericRepository<TqAwardingOrganisation>>();
-            services.AddTransient<IRepository<Provider>, GenericRepository<Provider>>();
-            services.AddTransient<IRepository<TqProvider>, GenericRepository<TqProvider>>();
-            services.AddTransient<IRepository<TqRoute>, GenericRepository<TqRoute>>();
-            services.AddTransient<IRepository<TqPathway>, GenericRepository<TqPathway>>();
-            services.AddTransient<IRepository<TqSpecialism>, GenericRepository<TqSpecialism>>();
+            services.AddTransient(typeof(IRepository<>), typeof(GenericRepository<>));
         }
 
         private static void RegisterApplicationServices(IServiceCollection services)
         {
-            services.AddTransient<ITqAwardingOrganisationService, TqAwardingOrganisationService>();
-            services.AddTransient<IProviderService, ProviderService>();
-            services.AddTransient<ITqProviderService, TqProviderService>();
-            services.AddTransient<ITqRouteService, TqRouteService>();
-            services.AddTransient<ITqPathwayService, TqPathwayService>();
-            services.AddTransient<ITqSpecialismService, TqSpecialismService>();
             services.AddTransient<ICsvHelperService, CsvHelperService>();
         }
     }

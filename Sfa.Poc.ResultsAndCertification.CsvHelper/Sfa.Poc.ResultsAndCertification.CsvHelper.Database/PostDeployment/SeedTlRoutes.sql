@@ -7,8 +7,9 @@ SET IDENTITY_INSERT [dbo].[TlRoute] ON
 MERGE INTO [dbo].[TlRoute] AS Target 
 USING (VALUES 
   (1, N'Construction'),
-  (2, N'Education & Childcare'),
-  (3, N'Digital')
+  (2, N'Education and Childcare'),
+  (3, N'Digital'),
+  (4, N'Health and Science')
   )
   AS Source ([Id], [Name]) 
 ON Target.[Id] = Source.[Id] 
