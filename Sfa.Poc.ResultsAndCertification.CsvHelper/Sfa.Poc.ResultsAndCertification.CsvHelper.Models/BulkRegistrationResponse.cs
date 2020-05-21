@@ -12,7 +12,17 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Models
         }
 
         public IEnumerable<Registration> Registrations { get; set; }
+        public IEnumerable<ValidationError> ValidationErrors
+        {
+            get
+            {
+                var result = new List<ValidationError>();
+                var invalidReg = Registrations.Where(x => !x.IsValid).ToList();
+                invalidReg.ForEach(x => { result.AddRange(x.ValidationErrors); });
+                return result;
+            }
+        }
 
-        public bool IsValid { get { return Registrations.Any(x => !x.IsValid); } }
+        public bool IsValid { get { return !Registrations.Any(x => !x.IsValid); } }
     }
 }

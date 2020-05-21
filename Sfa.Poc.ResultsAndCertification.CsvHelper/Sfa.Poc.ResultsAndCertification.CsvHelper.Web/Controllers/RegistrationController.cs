@@ -1,13 +1,11 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Client.Interfaces;
+using Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Model;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Models;
-using Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Utilities.CsvHelper.Model;
-using Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Utilities.CsvHelper.Service;
 
 namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Controllers
 {
@@ -54,52 +52,18 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Controllers
 
             // Temp code for validation
             ViewBag.ElapsedTime = watch.ElapsedMilliseconds;
-            return View("ViewAll", results);
-        }
+            TempData[ValidationErrors] = JsonConvert.SerializeObject(results.ValidationErrors);
 
-        [HttpPost]
-        public async Task<IActionResult> UploadAsync(RegistrationsFileViewModel model)
-        {
-            var watch = System.Diagnostics.Stopwatch.StartNew();
-            watch.Start();
-
-            if (!ModelState.IsValid)
-            {
-                // 1. File meta info validation 
-                return View(model);
-            }
-
-            var csvParserService = new CsvHelperService();
-            var regdata = await csvParserService.ReadDataAsync(model.RegistrationFile);
-
-            // Step: Do we have to report back this results?
-            var invalidData = regdata.Where(x => !x.IsValid);
-            
-            // Step: data-valiation against to DB.
-            var validData = regdata.Where(x => x.IsValid);
-            // if file validations are passed then proceed with db validations. 
-
-            // Step: db-validations. 
-
-            watch.Stop();
-
-            // Temp code for validation
-            ViewBag.ElapsedTime = watch.ElapsedMilliseconds;
-
-            var errors = new List<ValidationError>();
-            foreach(var item in invalidData)
-                errors.AddRange(item.ValidationErrors);
-            TempData[ValidationErrors] = JsonConvert.SerializeObject(errors);
-
-            // TODO: Stop timer
-            return View("ViewAll", validData);
+            return View("ViewAll", results.Registrations);
         }
 
         public FileResult GetRejectedData()
         {
-            var tempData = TempData[ValidationErrors] as string;
-            var model = JsonConvert.DeserializeObject<IEnumerable<ValidationError>>(tempData);
-            var result = model.Select(x => x.RawRow);
+            //var tempData = TempData[ValidationErrors] as string;
+            //var model = JsonConvert.DeserializeObject<IEnumerable<ValidationError>>(tempData);
+            //var result = model.Select(x => x.RawRow);
+            var result = string.Empty;
+
             return File(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(result)), "text/csv", "RejectedData.csv");
         }
 
@@ -108,12 +72,6 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Controllers
             var tempData = TempData[ValidationErrors] as string;
             var model = JsonConvert.DeserializeObject<IEnumerable<ValidationError>>(tempData);
             return View("ValidationErrorList", model);
-        }
-
-        public IActionResult ViewAll()
-        {
-            var result = new List<Registration>();
-            return View(result);
         }
 
         public async Task<IActionResult> DownloadAsync()
