@@ -21,11 +21,9 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Utilities.CustomValidati
 
                 using var reader = new StreamReader(file.OpenReadStream());
                 while (reader.ReadLine() != null)
-                    recordCount++;
-
-                if (recordCount > _maxRecordCount)
                 {
-                    return new ValidationResult(ErrorMessage);
+                    if (recordCount++ > _maxRecordCount)
+                        return new ValidationResult(ErrorMessage);
                 }
             }
 
