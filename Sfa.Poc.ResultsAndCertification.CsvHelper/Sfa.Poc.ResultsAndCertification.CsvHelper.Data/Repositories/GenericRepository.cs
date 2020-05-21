@@ -245,25 +245,22 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Data.Repositories
             }
         }
 
-        public virtual async Task BulkInsertOrUpdateAsync(IList<T> entities)
+        public virtual async Task<IList<T>> BulkInsertOrUpdateAsync(IList<T> entities)
         {
             if (entities != null && entities.Count > 0)
             {
-                using (var transaction = await _dbContext.Database.BeginTransactionAsync())
+                try
                 {
-                    try
-                    {
-                        await _dbContext.BulkInsertOrUpdateAsync(entities, config => { config.UseTempDB = true; });
-                        transaction.Commit();
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex.Message, ex.InnerException);
-                        transaction.Rollback();
-                        throw;
-                    }
+                    var bulkConfig = new BulkConfig() { SetOutputIdentity = true, CalculateStats = true };
+                    await _dbContext.BulkInsertAsync(entities);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex.Message, ex.InnerException);
+                    throw;
                 }
             }
+            return entities;
         }
 
         public virtual async Task<IList<T>> BulkReadAsync(IList<T> entities, params Expression<Func<T, object>>[] whereClauseProperties)
@@ -273,7 +270,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Data.Repositories
                 try
                 {
                     var properties = GetMemberNames(whereClauseProperties);
-                    await _dbContext.BulkReadAsync(entities, bulkConfig => bulkConfig.UpdateByProperties = properties);
+                    await _dbContext.BulkReadAsync(entities, bulkConfig => { bulkConfig.UpdateByProperties = properties; bulkConfig.TrackingEntities = true; });
                 }
                 catch (Exception ex)
                 {

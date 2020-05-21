@@ -26,6 +26,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Data.Interfaces
         Task<IList<T>> BulkReadAsync(IList<T> entities, params Expression<Func<T, object>>[] whereClauseProperties);
         Task BulkInsertAsync(IList<T> entities);
         Task BulkUpdateAsync(IList<T> entities);
-        Task BulkInsertOrUpdateAsync(IList<T> entities);        
+        //Task BulkInsertOrUpdateAsync(IList<T> entities);  
+        Task<IList<T>> BulkInsertOrUpdateAsync(IList<T> entities);
     }
 }

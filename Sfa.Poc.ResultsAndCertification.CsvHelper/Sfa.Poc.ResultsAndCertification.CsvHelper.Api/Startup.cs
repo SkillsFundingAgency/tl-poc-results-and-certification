@@ -80,7 +80,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api
                 //c.IncludeXmlComments(xmlPath);
             });
             IdentityModelEventSource.ShowPII = true;
-            services.AddApiAuthentication(ResultsAndCertificationConfiguration).AddApiAuthorization();
+            //services.AddApiAuthentication(ResultsAndCertificationConfiguration).AddApiAuthorization();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

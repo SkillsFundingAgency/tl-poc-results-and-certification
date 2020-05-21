@@ -20,8 +20,8 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Client.Clients
         {
             _tokenServiceClient = tokenService;
             _httpClient = httpClient;
-            _httpClient.DefaultRequestHeaders.Accept.Clear();
-            _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            //_httpClient.DefaultRequestHeaders.Accept.Clear();
+            //_httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             _internalApiUri = "https://localhost:5001";
             _httpClient.BaseAddress = new System.Uri(_internalApiUri);
         }
@@ -35,27 +35,27 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Client.Clients
 
         public async Task<BulkRegistrationResponse> ProcessBulkRegistrationsAsync(IFormFile registrationFile)
         {
-            var requestUri = $"/api/registration/bulkupload";
+            var requestUri = $"/api/registration/bulk-upload";
 
-            //using (var content = new MultipartFormDataContent())
-            //{
-            //    content.Add(new StreamContent(registrationFile.OpenReadStream())
-            //    {
-            //        Headers =
-            //    {
-            //        ContentLength = registrationFile.Length,
-            //        ContentType = new MediaTypeHeaderValue(registrationFile.ContentType)
-            //    }
-            //    }, "Attachment", "FileImport");
+            using (var content = new MultipartFormDataContent())
+            {
+                content.Add(new StreamContent(registrationFile.OpenReadStream())
+                {
+                    Headers =
+                {
+                    ContentLength = registrationFile.Length,
+                    ContentType = new MediaTypeHeaderValue(registrationFile.ContentType)
+                }
+                }, "Attachment", "FileImport");
 
-            //    var response = await _httpClient.PostAsync(requestUri, content);
-            //    response.EnsureSuccessStatusCode();
+                var response = await _httpClient.PostAsync(requestUri, content);
+                response.EnsureSuccessStatusCode();
 
-            //    return JsonConvert.DeserializeObject<BulkRegistrationResponse>(await response.Content.ReadAsStringAsync());
-            //}
+                return JsonConvert.DeserializeObject<BulkRegistrationResponse>(await response.Content.ReadAsStringAsync());
+            }
 
-            var response = await PostAsync<IFormFile, BulkRegistrationResponse>(requestUri, registrationFile, registrationFile.ContentType);
-            return response;
+            //var response = await PostAsync<IFormFile, BulkRegistrationResponse>(requestUri, registrationFile, registrationFile.ContentType);
+            //return response;
         }
 
         private void SetBearerToken()

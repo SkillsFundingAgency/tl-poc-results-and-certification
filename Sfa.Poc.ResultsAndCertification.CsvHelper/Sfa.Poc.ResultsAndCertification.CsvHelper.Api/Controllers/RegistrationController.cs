@@ -21,15 +21,22 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Controllers
         }
 
         [HttpPost]
-        [Route("bulkupload", Name = "BulkUpload")]
-        public async Task<BulkRegistrationResponse> ProcessBulkRegistrationsAsync(IFormFile registrationFile)
+        [Route("bulk-upload", Name = "BulkUpload")]
+        public async Task<BulkRegistrationResponse> ProcessBulkRegistrationsAsync()
         {
-            var regdata = await _csvParserService.ReadDataAsync(registrationFile);
+            var response = new BulkRegistrationResponse();
+            foreach (var file in Request.Form.Files)
+            {
+                response.Registrations = await _csvParserService.ReadDataAsync(file);
+            }
 
-            long ukPrn = 1024;
-            var aoTlevels = _registrationService.GetAllTLevelsByAoUkprn(ukPrn);
+            //await _registrationService.ProcessRegistrations(null);
+            //await _registrationService.ReadRegistrations(null);
 
-            return new BulkRegistrationResponse { Registrations = regdata };
+            //long ukPrn = 1024;
+            //var aoTlevels = _registrationService.GetAllTLevelsByAoUkprn(ukPrn);
+            //await _registrationService.ProcessRegistrations(null);
+            return response;
         }
     }
 }
