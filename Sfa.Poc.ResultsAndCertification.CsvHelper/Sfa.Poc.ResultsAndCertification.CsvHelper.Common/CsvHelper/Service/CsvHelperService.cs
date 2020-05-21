@@ -51,6 +51,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Service
                         reg.Core = reg.Validate<string>(csv, Constants.CsvHeaders.Core);
                         reg.Specialism1 = reg.Validate<string>(csv, Constants.CsvHeaders.Specialism1);
                         reg.Specialism2 = reg.Validate<string>(csv, Constants.CsvHeaders.Specialism2);
+                        reg.RowNum = csv.Context.Row;
 
                     result.Add(reg);
                 }
