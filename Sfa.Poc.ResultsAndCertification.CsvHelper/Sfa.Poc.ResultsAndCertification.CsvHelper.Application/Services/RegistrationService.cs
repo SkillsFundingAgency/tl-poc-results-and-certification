@@ -4,6 +4,11 @@ using Sfa.Poc.ResultsAndCertification.CsvHelper.Data.Interfaces;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Domain.Models;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using Sfa.Poc.ResultsAndCertification.CsvHelper.Data;
+using Microsoft.EntityFrameworkCore;
+using Sfa.Poc.ResultsAndCertification.CsvHelper.Models;
+using Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Model;
 using System.Threading.Tasks;
 
 namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
@@ -11,18 +16,71 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
     public class RegistrationService : IRegistrationService
     {
         private readonly IRepository<TlPathway> _pathwayRepository;
+        private readonly ResultsAndCertificationDbContext ctx;
         private readonly IRepository<TqRegistration> _tqRegistrationRepository;
 
-        public RegistrationService(IRepository<TlPathway> pathwayRepository, IRepository<TqRegistration> tqRegistrationRepository)
+        public RegistrationService(IRepository<TlPathway> pathwayRepository, ResultsAndCertificationDbContext context, IRepository<TqRegistration> tqRegistrationRepository)
         {
             _pathwayRepository = pathwayRepository;
             _tqRegistrationRepository = tqRegistrationRepository;
+            ctx = context;
         }
 
-        public IEnumerable<Tlevel> GetAllTLevelsByAoUkprn(long ukPrn)
+        public async Task<IEnumerable<Tlevel>> GetAllTLevelsByAoUkprnAsync(long ukprn)
         {
-            // TODO: Select Tlevels from Database.
-            return new List<Tlevel>();
+            var result = await ctx.TqProvider
+                .Include(x => x.TlProvider)
+                .Include(x => x.TqAwardingOrganisation)
+                .ThenInclude(x => x.TlAwardingOrganisaton)
+                .Include(x => x.TqAwardingOrganisation)
+                .ThenInclude(x => x.TlPathway)
+                .ThenInclude(x => x.TlSpecialisms)
+                .Include(x => x.TlProvider)
+                .Where(x => x.TqAwardingOrganisation.TlAwardingOrganisaton.UkPrn == ukprn)
+                .Select(x => new Tlevel
+                {
+                    ProviderUkprn = x.TlProvider.UkPrn,
+                    TlPathwayId = x.TqAwardingOrganisation.TlPathway.Id,
+                    TlSpecialisms = x.TqAwardingOrganisation.TlPathway.TlSpecialisms
+                    .Select(s => new KeyValuePair<int, string>(s.Id, s.Name)).ToList()
+                }).ToListAsync();
+
+            return result;
+        }
+
+        public async Task<bool> SaveBulkRegistrationsAsync(IEnumerable<Registration> regdata, long ukprn)
+        {
+            // TOOD: 
+            return await Task.Run(() => true);
+        }
+
+        public async Task<BulkRegistrationResponse> ValidateRegistrationTlevelsAsync(long ukprn, IEnumerable<Registration> regdata)
+        {
+            var aoProviderTlevels = await GetAllTLevelsByAoUkprnAsync(ukprn);
+
+            var result = new BulkRegistrationResponse();
+
+            regdata.ToList().ForEach(x =>
+            {
+                var isvalid = aoProviderTlevels.Any(t => t.ProviderUkprn == x.Ukprn &&
+                            t.TlPathwayId == 100 /* && TODO*/
+                //t.TlSpecialisms.Contains(200) && /*TODO: Spl-1 */
+                //t.TlSpecialisms.Contains(300) /*TODO: Spl-1 */
+                );
+
+                if (!isvalid) 
+                {
+                    x.ValidationErrors.Add(new ValidationError
+                    {
+                        FieldName = "NA",
+                        FieldValue = "NA",
+                        RawRow = "T level not found.", /* TODO: is Required? */
+                        RowNum = x.RowNum 
+                    });
+                }
+            });
+
+            return result;
         }
 
         public async Task ReadRegistrations(IList<TqRegistration> registrations)

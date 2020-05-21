@@ -30,5 +30,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Model
 
         [Name(Constants.CsvHeaders.Specialism2)]
         public string Specialism2 { get; set; }
+
+        public int RowNum { get; set; }
     }
 }
