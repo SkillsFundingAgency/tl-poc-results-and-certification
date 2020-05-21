@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Interfaces;
@@ -22,12 +23,28 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Controllers
 
         [HttpPost]
         [Route("bulkupload", Name = "BulkUpload")]
-        public async Task<BulkRegistrationResponse> ProcessBulkRegistrationsAsync(IFormFile registrationFile)
+        public async Task<BulkRegistrationResponse> ProcessBulkRegistrationsAsync(IFormFile registrationFile, long ukprn = 10009696)
         {
+            // TODO: Read file from the Blob-storage.
             var regdata = await _csvParserService.ReadDataAsync(registrationFile);
 
-            long ukPrn = 10009696;
-            var aoTlevels = _registrationService.GetAllTLevelsByAoUkprn(ukPrn);
+            if (regdata.Any(x => !x.IsValid))
+            {
+                return new BulkRegistrationResponse
+                {
+                    Registrations = regdata.Where(x => !x.IsValid)
+                };
+            }
+
+            // Step: Proceed with validation aginst to DB.
+            var validationResult = await _registrationService.ValidateRegistrationTlevelsAsync(ukprn, regdata);
+            if (!validationResult.IsValid)
+            {
+                return validationResult;
+            }
+
+
+            var result = await _registrationService.SaveBulkRegistrationsAsync(regdata, ukprn);
 
             return new BulkRegistrationResponse { Registrations = regdata };
         }
