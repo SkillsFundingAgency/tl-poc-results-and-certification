@@ -10,6 +10,18 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Model
         public long Uln { get; set; }
 
         [Required]
+        [Name(Constants.CsvHeaders.FirstName)]
+        public string FirstName { get; set; }
+
+        [Required]
+        [Name(Constants.CsvHeaders.LastName)]
+        public string LastName { get; set; }
+
+        [Required]
+        [Name(Constants.CsvHeaders.DateOfBirth)]
+        public string DateOfBirth { get; set; }
+
+        [Required]
         [Name(Constants.CsvHeaders.Ukprn)]
         public long Ukprn { get; set; }
 

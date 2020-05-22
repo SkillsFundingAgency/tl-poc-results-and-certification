@@ -44,8 +44,9 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
                 {
                     ProviderUkprn = x.TlProvider.UkPrn,
                     TlPathwayId = x.TqAwardingOrganisation.TlPathway.Id,
-                    TlSpecialisms = x.TqAwardingOrganisation.TlPathway.TlSpecialisms
-                    .Select(s => new KeyValuePair<int, string>(s.Id, s.Name)).ToList()
+                    PathwayLarId = x.TqAwardingOrganisation.TlPathway.LarId,
+                    TlSpecialisms = x.TqAwardingOrganisation.TlPathway.TlSpecialisms.Select(s => s.Id).ToList(),
+                    TlSpecialismLarIds = x.TqAwardingOrganisation.TlPathway.TlSpecialisms.Select(s => s.LarId).ToList()
                 }).ToListAsync();
 
             return result;
@@ -62,25 +63,27 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
             var aoProviderTlevels = await GetAllTLevelsByAoUkprnAsync(ukprn);
 
             var result = new BulkRegistrationResponse();
-
             regdata.ToList().ForEach(x =>
             {
-                var isvalid = aoProviderTlevels.Any(t => t.ProviderUkprn == x.Ukprn &&
-                            t.TlPathwayId == 100 /* && TODO*/
-                //t.TlSpecialisms.Contains(200) && /*TODO: Spl-1 */
-                //t.TlSpecialisms.Contains(300) /*TODO: Spl-1 */
-                );
+                // Validation: AO not registered for the T level. 
+                var isAoRegistered = aoProviderTlevels.Any(t => t.PathwayLarId == x.Core);
+                if (!isAoRegistered)
+                    AddValidationError(x, "Ao not registered for T level or Invalid T level");
 
-                if (!isvalid) 
-                {
-                    x.ValidationErrors.Add(new ValidationError
-                    {
-                        FieldName = "NA",
-                        FieldValue = "NA",
-                        RawRow = "T level not found.", /* TODO: is Required? */
-                        RowNum = x.RowNum
-                    });
-                }
+                // Validation: Provider not registered for the T level
+                var isValidProvider = aoProviderTlevels.Any(t => t.ProviderUkprn == x.Ukprn && t.PathwayLarId == x.Core);
+                if (!isValidProvider)
+                    AddValidationError(x, "Provider not registered for T level");
+
+                // Validation: Verify if valid specialisms are used.
+                var isValidSpecialisms = aoProviderTlevels.Any(t => t.ProviderUkprn == x.Ukprn && 
+                                        t.PathwayLarId == x.Core && 
+                                        (string.IsNullOrWhiteSpace(x.Specialism1)|| t.TlSpecialismLarIds.Contains(x.Specialism1)) &&
+                                        (string.IsNullOrWhiteSpace(x.Specialism2) || t.TlSpecialismLarIds.Contains(x.Specialism2)));
+
+                if (!isValidSpecialisms)
+                    AddValidationError(x, "Specialisms are not valid for T Level");
+
             });
 
             return result;
@@ -148,6 +151,17 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
                 });
             }
             await _tqRegistrationRepository.BulkInsertOrUpdateAsync(registrations, r => r.UniqueLearnerNumber, r => r.Firstname, r => r.Lastname);
+        }
+
+        private void AddValidationError(Registration reg, string message)
+        {
+            reg.ValidationErrors.Add(new ValidationError
+            {
+                FieldName = "NA",
+                FieldValue = "NA",
+                RawRow = message,
+                RowNum = reg.RowNum
+            });
         }
     }
 }
