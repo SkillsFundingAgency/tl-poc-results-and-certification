@@ -36,7 +36,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Controllers
                 return response;
 
             // Step: Proceed with validation aginst to DB.
-            var validationResult = await _registrationService.ValidateRegistrationTlevelsAsync(ukprn, response.Registrations);
+            var validationResult = await _registrationService.ValidateRegistrationTlevelsAsync(ukprn, response.Registrations.Where(x => x.IsValid));
             if (!validationResult.IsValid)
             {
                 return validationResult;

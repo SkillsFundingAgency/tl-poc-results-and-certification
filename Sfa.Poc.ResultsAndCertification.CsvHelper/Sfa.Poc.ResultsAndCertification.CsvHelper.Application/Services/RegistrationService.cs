@@ -40,9 +40,9 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
                 .Select(x => new Tlevel
                 {
                     ProviderUkprn = x.TlProvider.UkPrn,
-                    TlPathwayId = x.TqAwardingOrganisation.TlPathway.Id,
+                    TlPathwayId = int.Parse(x.TqAwardingOrganisation.TlPathway.LarId),
                     TlSpecialisms = x.TqAwardingOrganisation.TlPathway.TlSpecialisms
-                    .Select(s => new KeyValuePair<int, string>(s.Id, s.Name)).ToList()
+                    .Select(s => int.Parse(s.LarId)).ToList()
                 }).ToListAsync();
 
             return result;
@@ -59,13 +59,26 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
             var aoProviderTlevels = await GetAllTLevelsByAoUkprnAsync(ukprn);
 
             var result = new BulkRegistrationResponse();
-
             regdata.ToList().ForEach(x =>
             {
+                // Task: Valiate Provider
+                var isValidProvider = aoProviderTlevels.Any(t => t.ProviderUkprn == x.Ukprn);
+                if (!isValidProvider)
+                {
+                    x.ValidationErrors.Add(new ValidationError
+                    {
+                        FieldName = "NA",
+                        FieldValue = "NA",
+                        RawRow = "Invalid Provider",
+                        RowNum = x.RowNum
+                    });
+                }
+
+                // Task: Valiate T level
                 var isvalid = aoProviderTlevels.Any(t => t.ProviderUkprn == x.Ukprn &&
-                            t.TlPathwayId == 100 /* && TODO*/
-                //t.TlSpecialisms.Contains(200) && /*TODO: Spl-1 */
-                //t.TlSpecialisms.Contains(300) /*TODO: Spl-1 */
+                            t.TlPathwayId == int.Parse(x.Core) &&        
+                            t.TlSpecialisms.Contains(200) &&
+                            t.TlSpecialisms.Contains(300)
                 );
 
                 if (!isvalid) 
@@ -74,7 +87,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
                     {
                         FieldName = "NA",
                         FieldValue = "NA",
-                        RawRow = "T level not found.", /* TODO: is Required? */
+                        RawRow = "Invalid T Level",
                         RowNum = x.RowNum
                     });
                 }
