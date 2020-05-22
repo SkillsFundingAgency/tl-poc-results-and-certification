@@ -40,19 +40,22 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Service
                 //******  Option 2: Read every row and return consolidated error report.****** 
                 var result = new List<Registration>();
                 csv.Read();
-                //csv.ReadHeader();  // TODO: header needs to be validated.
-                csv.ValidateHeader<Registration>();
+                csv.ReadHeader();  // TODO: header needs to be validated.
+                //csv.ValidateHeader<Registration>();
                 while (await csv.ReadAsync())
                 {
                     var reg = new Registration();
-                        
-                        reg.Uln = reg.Validate<int>(csv, Constants.CsvHeaders.Uln);
-                        reg.Ukprn = reg.Validate<int>(csv, Constants.CsvHeaders.Ukprn);
-                        reg.StartDate = reg.Validate<string>(csv, Constants.CsvHeaders.StartDate);
-                        reg.Core = reg.Validate<string>(csv, Constants.CsvHeaders.Core);
-                        reg.Specialism1 = reg.Validate<string>(csv, Constants.CsvHeaders.Specialism1);
-                        reg.Specialism2 = reg.Validate<string>(csv, Constants.CsvHeaders.Specialism2);
-                        reg.RowNum = csv.Context.Row;
+
+                    reg.Uln = reg.Validate<int>(csv, Constants.CsvHeaders.Uln);
+                    reg.FirstName = reg.Validate<string>(csv, Constants.CsvHeaders.FirstName);
+                    reg.LastName = reg.Validate<string>(csv, Constants.CsvHeaders.LastName);
+                    reg.DateOfBirth = reg.Validate<string>(csv, Constants.CsvHeaders.DateOfBirth);
+                    reg.Ukprn = reg.Validate<int>(csv, Constants.CsvHeaders.Ukprn);
+                    reg.StartDate = reg.Validate<string>(csv, Constants.CsvHeaders.StartDate);
+                    reg.Core = reg.Validate<string>(csv, Constants.CsvHeaders.Core);
+                    reg.Specialism1 = reg.Validate<string>(csv, Constants.CsvHeaders.Specialism1);
+                    reg.Specialism2 = reg.Validate<string>(csv, Constants.CsvHeaders.Specialism2);
+                    reg.RowNum = csv.Context.Row;
 
                     result.Add(reg);
                 }

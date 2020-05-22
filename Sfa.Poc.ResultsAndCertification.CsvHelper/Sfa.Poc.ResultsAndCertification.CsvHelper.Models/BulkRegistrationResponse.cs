@@ -9,10 +9,12 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Models
         public BulkRegistrationResponse()
         {
             Registrations = new List<Registration>();
+            ValidationErrors = new List<ValidationError>();
         }
 
         public IEnumerable<Registration> Registrations { get; set; }
-        public IEnumerable<ValidationError> ValidationErrors
+        public IEnumerable<ValidationError> ValidationErrors { get; set; }
+        public IEnumerable<ValidationError> ValidationMessages
         {
             get
             {
