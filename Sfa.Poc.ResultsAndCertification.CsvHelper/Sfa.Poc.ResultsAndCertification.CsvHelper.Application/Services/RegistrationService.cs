@@ -90,6 +90,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
         {
             var list = _tqRegistrationRepository.GetManyAsync(x => x.TqProvider.TqAwardingOrganisation.TlAwardingOrganisaton.UkPrn == 10009696,
             x => x.TqSpecialismRegistrations).ToList();
+
             var entitiesToLoad = 1000000;
             registrations = new List<TqRegistration>();
             var dateTimeNow = DateTime.Now;
@@ -102,9 +103,9 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
                     UniqueLearnerNumber = 123456789, //random.Next(1, 100000),
                     Firstname = "Firstname " + i,
                     Lastname = "Lastname " + i,
-                    //DateofBirth = DateTime.UtcNow.AddDays(-i),
+                    DateofBirth = DateTime.UtcNow.AddDays(-i),
                     TqProviderId = 1,
-                    //StartDate = dateTimeNow.Date,
+                    StartDate = dateTimeNow.Date,
                     Status = 1
                 });
             }
@@ -127,7 +128,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
 
         public async Task ProcessRegistrations(IList<TqRegistration> registrations)
         {
-            var entitiesToLoad = 1000000;
+            var entitiesToLoad = 10;
 
             registrations = new List<TqRegistration>();
             var dateTimeNow = DateTime.Now;
@@ -136,7 +137,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
             {
                 registrations.Add(new TqRegistration
                 {
-                    Id = i,
+                    //Id = i,
                     UniqueLearnerNumber = 123456789, //random.Next(1, 100000),
                     Firstname = "Firstname " + i,
                     Lastname = "Lastname " + i,
@@ -146,7 +147,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
                     Status = 1
                 });
             }
-            await _tqRegistrationRepository.BulkInsertOrUpdateAsync(registrations);
+            await _tqRegistrationRepository.BulkInsertOrUpdateAsync(registrations, r => r.UniqueLearnerNumber, r => r.Firstname, r => r.Lastname);
         }
     }
 }

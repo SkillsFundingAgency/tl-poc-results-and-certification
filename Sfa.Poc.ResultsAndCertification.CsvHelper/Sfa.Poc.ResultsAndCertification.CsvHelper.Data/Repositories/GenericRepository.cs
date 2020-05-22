@@ -245,14 +245,15 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Data.Repositories
             }
         }
 
-        public virtual async Task<IList<T>> BulkInsertOrUpdateAsync(IList<T> entities)
+        public virtual async Task<IList<T>> BulkInsertOrUpdateAsync(IList<T> entities, params Expression<Func<T, object>>[] updatePropertiesBy)
         {
             if (entities != null && entities.Count > 0)
             {
                 try
                 {
-                    var bulkConfig = new BulkConfig() { SetOutputIdentity = true, CalculateStats = true };
-                    await _dbContext.BulkInsertAsync(entities);
+                    var properties = GetMemberNames(updatePropertiesBy);
+                    var bulkConfig = new BulkConfig() { SetOutputIdentity = true, CalculateStats = true, UpdateByProperties = properties };
+                    await _dbContext.BulkInsertAsync(entities, bulkConfig);
                 }
                 catch (Exception ex)
                 {
