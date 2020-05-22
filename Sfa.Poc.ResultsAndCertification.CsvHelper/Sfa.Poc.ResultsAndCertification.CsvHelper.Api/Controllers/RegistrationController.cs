@@ -33,12 +33,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Controllers
             }
 
             if (response.Registrations.Any(x => !x.IsValid))
-            {
-                return new BulkRegistrationResponse
-                {
-                    Registrations = response.Registrations.Where(x => !x.IsValid)
-                };
-            }
+                return response;
 
             // Step: Proceed with validation aginst to DB.
             var validationResult = await _registrationService.ValidateRegistrationTlevelsAsync(ukprn, response.Registrations);
@@ -47,9 +42,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Controllers
                 return validationResult;
             }
 
-
             var result = await _registrationService.SaveBulkRegistrationsAsync(response.Registrations, ukprn);
-
             return response;
         }
     }

@@ -17,10 +17,10 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Service
         {
             try
             {
-                
                 var config = new CsvConfiguration(CultureInfo.InvariantCulture)
                 {
                     HasHeaderRecord = true,
+                    //HeaderValidated = true,
                     PrepareHeaderForMatch = (string header, int index) => header.ToLower()
                 };
 
@@ -40,7 +40,8 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Service
                 //******  Option 2: Read every row and return consolidated error report.****** 
                 var result = new List<Registration>();
                 csv.Read();
-                csv.ReadHeader();
+                //csv.ReadHeader();  // TODO: header needs to be validated.
+                csv.ValidateHeader<Registration>();
                 while (await csv.ReadAsync())
                 {
                     var reg = new Registration();

@@ -78,7 +78,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
                         FieldName = "NA",
                         FieldValue = "NA",
                         RawRow = "T level not found.", /* TODO: is Required? */
-                        RowNum = x.RowNum 
+                        RowNum = x.RowNum
                     });
                 }
             });

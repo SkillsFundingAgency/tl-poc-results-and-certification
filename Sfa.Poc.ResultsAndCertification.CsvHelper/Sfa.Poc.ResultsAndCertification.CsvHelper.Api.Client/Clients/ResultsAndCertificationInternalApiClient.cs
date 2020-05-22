@@ -37,25 +37,20 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Client.Clients
         {
             var requestUri = $"/api/registration/bulk-upload";
 
-            using (var content = new MultipartFormDataContent())
+            using var content = new MultipartFormDataContent();
+            content.Add(new StreamContent(registrationFile.OpenReadStream())
             {
-                content.Add(new StreamContent(registrationFile.OpenReadStream())
-                {
-                    Headers =
+                Headers =
                 {
                     ContentLength = registrationFile.Length,
                     ContentType = new MediaTypeHeaderValue(registrationFile.ContentType)
                 }
-                }, "Attachment", "FileImport");
+            }, "Attachment", "FileImport");
 
-                var response = await _httpClient.PostAsync(requestUri, content);
-                response.EnsureSuccessStatusCode();
+            var response = await _httpClient.PostAsync(requestUri, content);
+            response.EnsureSuccessStatusCode();
 
-                return JsonConvert.DeserializeObject<BulkRegistrationResponse>(await response.Content.ReadAsStringAsync());
-            }
-
-            //var response = await PostAsync<IFormFile, BulkRegistrationResponse>(requestUri, registrationFile, registrationFile.ContentType);
-            //return response;
+            return JsonConvert.DeserializeObject<BulkRegistrationResponse>(await response.Content.ReadAsStringAsync());
         }
 
         private void SetBearerToken()
@@ -72,7 +67,6 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Client.Clients
             return data;
         }
 
-
         private async Task<TResponse> PostAsync<TRequest, TResponse>(string requestUri, TRequest content, string contentType)
         {
             var httpContent = CreateHttpContent<TRequest>(content, contentType);
@@ -82,11 +76,6 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Client.Clients
             response.EnsureSuccessStatusCode();
             
             return JsonConvert.DeserializeObject<TResponse>(await response.Content.ReadAsStringAsync());
-        }
-
-        private HttpContent CreateHttpContent<T>(T content)
-        {
-            return CreateHttpContent<T>(content, "application/json");
         }
 
         private HttpContent CreateHttpContent<T>(T content, string contentType)
