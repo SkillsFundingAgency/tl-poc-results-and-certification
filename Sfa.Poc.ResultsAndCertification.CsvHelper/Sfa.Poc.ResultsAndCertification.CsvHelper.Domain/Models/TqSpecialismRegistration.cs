@@ -1,6 +1,6 @@
 ﻿namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Domain.Models
 {
-    public class TqSpecialismRegistration : BaseEntity
+    public partial class TqSpecialismRegistration : BaseEntity
     {
         public int TqRegistrationId { get; set; }
         public int TlSpecialismId { get; set; }

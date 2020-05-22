@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Domain.Models
 {
-    public class TqRegistration : BaseEntity
+    public partial class TqRegistration : BaseEntity
     {
         public TqRegistration()
         {

@@ -18,11 +18,14 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
         private readonly IRepository<TlPathway> _pathwayRepository;
         private readonly ResultsAndCertificationDbContext ctx;
         private readonly IRepository<TqRegistration> _tqRegistrationRepository;
+        private readonly IRepository<TqSpecialismRegistration> _tqSpecialismRegistrationRepository;
 
-        public RegistrationService(IRepository<TlPathway> pathwayRepository, ResultsAndCertificationDbContext context, IRepository<TqRegistration> tqRegistrationRepository)
+        public RegistrationService(IRepository<TlPathway> pathwayRepository, ResultsAndCertificationDbContext context,
+            IRepository<TqRegistration> tqRegistrationRepository, IRepository<TqSpecialismRegistration> tqSpecialismRegistrationRepository)
         {
             _pathwayRepository = pathwayRepository;
             _tqRegistrationRepository = tqRegistrationRepository;
+            _tqSpecialismRegistrationRepository = tqSpecialismRegistrationRepository;
             ctx = context;
         }
 
@@ -85,7 +88,9 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
 
         public async Task ReadRegistrations(IList<TqRegistration> registrations)
         {
-            var entitiesToLoad = 100000;
+            var list = _tqRegistrationRepository.GetManyAsync(x => x.TqProvider.TqAwardingOrganisation.TlAwardingOrganisaton.UkPrn == 10009696,
+            x => x.TqSpecialismRegistrations).ToList();
+            var entitiesToLoad = 1000000;
             registrations = new List<TqRegistration>();
             var dateTimeNow = DateTime.Now;
             Random random = new Random();
@@ -103,14 +108,26 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
                     Status = 1
                 });
             }
+
+            //var save = await _tqRegistrationRepository.CreateManyAsync(registrations);
            var results = await _tqRegistrationRepository.BulkReadAsync(registrations, r => r.UniqueLearnerNumber, r => r.Firstname,
                 r => r.Lastname, r => r.TqProviderId, r => r.Status);
-        
+
+            var specialismRegistrations = new List<TqSpecialismRegistration>();
+
+            foreach(var r in results)
+            {
+                specialismRegistrations.Add(new TqSpecialismRegistration
+                {
+                    TqRegistrationId = r.Id                    
+                });
+            }
+            var specialismResults = await _tqSpecialismRegistrationRepository.BulkReadAsync(specialismRegistrations, r => r.TqRegistrationId);
         }
 
         public async Task ProcessRegistrations(IList<TqRegistration> registrations)
         {
-            var entitiesToLoad = 100000;
+            var entitiesToLoad = 1000000;
 
             registrations = new List<TqRegistration>();
             var dateTimeNow = DateTime.Now;
@@ -123,7 +140,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
                     UniqueLearnerNumber = 123456789, //random.Next(1, 100000),
                     Firstname = "Firstname " + i,
                     Lastname = "Lastname " + i,
-                    DateofBirth = DateTime.UtcNow.AddDays(-i),
+                    DateofBirth = DateTime.UtcNow.AddDays(100),
                     TqProviderId = 1,
                     StartDate = dateTimeNow.Date,
                     Status = 1
