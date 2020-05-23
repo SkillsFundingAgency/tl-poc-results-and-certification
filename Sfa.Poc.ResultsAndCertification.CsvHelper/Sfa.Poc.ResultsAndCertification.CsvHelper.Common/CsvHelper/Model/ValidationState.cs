@@ -1,4 +1,5 @@
 ﻿using CsvHelper;
+using FluentValidation.Results;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -52,7 +53,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Model
             }
         }
 
-        private static ValidationError BuildError(ReadingContext context, string message = "")
+        public ValidationError BuildError(ReadingContext context, string message = "", ValidationResult validationResult = null)
         {
             var fieldIndex = context.CurrentIndex;
             var error = new ValidationError
@@ -60,7 +61,8 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Model
                 FieldName = context.HeaderRecord[fieldIndex],
                 FieldValue = context.Record[fieldIndex],
                 RowNum = context.Row,
-                RawRow = context.RawRecord
+                RawRow = context.RawRecord,
+                ValidationResult = validationResult
             };
 
             return error;

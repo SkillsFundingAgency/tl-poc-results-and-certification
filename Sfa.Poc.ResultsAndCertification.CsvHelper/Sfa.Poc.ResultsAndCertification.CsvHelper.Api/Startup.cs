@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -13,6 +14,8 @@ using Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Infrastructure;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Configuration;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Interfaces;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services;
+using Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.DataValidator;
+using Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Model;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Service;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Data;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Data.Interfaces;
@@ -152,7 +155,8 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api
 
         private static void RegisterApplicationServices(IServiceCollection services)
         {
-            services.AddTransient<ICsvHelperService, CsvHelperService>();
+            services.AddTransient<IValidator<Registration>, RegistrationDataValidator>();
+            services.AddTransient<ICsvHelperService<Registration, Domain.Models.TqRegistration>, CsvHelperService<Registration, Domain.Models.TqRegistration>>();
             services.AddTransient<IRegistrationService, RegistrationService>();
         }
     }

@@ -1,8 +1,11 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Interfaces;
+using Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Model;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Service;
+using Sfa.Poc.ResultsAndCertification.CsvHelper.Domain.Models;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Models;
 
 namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Controllers
@@ -11,10 +14,10 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Controllers
     [ApiController]
     public class RegistrationController : ControllerBase
     {
-        private readonly ICsvHelperService _csvParserService;
+        private readonly ICsvHelperService<Registration, TqRegistration> _csvParserService;
         private readonly IRegistrationService _registrationService;
 
-        public RegistrationController(ICsvHelperService csvParserService, IRegistrationService registrationService)
+        public RegistrationController(ICsvHelperService<Registration, TqRegistration> csvParserService, IRegistrationService registrationService)
         {
             _csvParserService = csvParserService;
             _registrationService = registrationService;

@@ -251,9 +251,14 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Data.Repositories
             {
                 try
                 {
-                    var properties = GetMemberNames(updatePropertiesBy);
-                    var bulkConfig = new BulkConfig() { SetOutputIdentity = true, CalculateStats = true, UpdateByProperties = properties };
-                    await _dbContext.BulkInsertAsync(entities, bulkConfig);
+                    var bulkConfig = new BulkConfig() { SetOutputIdentity = true, CalculateStats = true };
+
+                    if (updatePropertiesBy != null && updatePropertiesBy.Length > 0)
+                    {
+                        bulkConfig.UpdateByProperties = GetMemberNames(updatePropertiesBy);
+                    }                   
+                    
+                    await _dbContext.BulkInsertAsync(entities);
                 }
                 catch (Exception ex)
                 {

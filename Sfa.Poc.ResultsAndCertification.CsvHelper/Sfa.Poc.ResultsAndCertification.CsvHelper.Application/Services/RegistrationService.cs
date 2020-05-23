@@ -91,21 +91,22 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
 
         public async Task ReadRegistrations(IList<TqRegistration> registrations)
         {
-            var list = _tqRegistrationRepository.GetManyAsync(x => x.TqProvider.TqAwardingOrganisation.TlAwardingOrganisaton.UkPrn == 10009696,
-            x => x.TqSpecialismRegistrations).ToList();
-
-            var entitiesToLoad = 1000000;
+            var seedValue = 0;
+            var ulns = new HashSet<long>();
+            //var ulns = new List<long>();
+            var entitiesToLoad = 10000;
             registrations = new List<TqRegistration>();
             var dateTimeNow = DateTime.Now;
             Random random = new Random();
             for (int i = 1; i <= entitiesToLoad; i++)
             {
+                ulns.Add(seedValue + i);
                 registrations.Add(new TqRegistration
                 {
                     //Id = i,
-                    UniqueLearnerNumber = 123456789, //random.Next(1, 100000),
-                    Firstname = "Firstname " + i,
-                    Lastname = "Lastname " + i,
+                    UniqueLearnerNumber = seedValue + i, //random.Next(1, 100000),
+                    Firstname = "Firstname " + (seedValue + i),
+                    Lastname = "Lastname " + (seedValue + i),
                     DateofBirth = DateTime.UtcNow.AddDays(-i),
                     TqProviderId = 1,
                     StartDate = dateTimeNow.Date,
@@ -113,9 +114,17 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
                 });
             }
 
-            //var save = await _tqRegistrationRepository.CreateManyAsync(registrations);
-           var results = await _tqRegistrationRepository.BulkReadAsync(registrations, r => r.UniqueLearnerNumber, r => r.Firstname,
-                r => r.Lastname, r => r.TqProviderId, r => r.Status);
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+            watch.Start();
+
+
+            var list = await _tqRegistrationRepository.GetManyAsync(x => ulns.Contains(x.UniqueLearnerNumber),
+            x => x.TqSpecialismRegistrations).AsNoTracking().ToListAsync();
+
+            watch.Stop();
+            var sec = watch.ElapsedMilliseconds;
+            
+            var results = await _tqRegistrationRepository.BulkReadAsync(registrations, r => r.UniqueLearnerNumber);
 
             var specialismRegistrations = new List<TqSpecialismRegistration>();
 
@@ -131,7 +140,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
 
         public async Task ProcessRegistrations(IList<TqRegistration> registrations)
         {
-            var entitiesToLoad = 10;
+            var entitiesToLoad = 10000000;
 
             registrations = new List<TqRegistration>();
             var dateTimeNow = DateTime.Now;
@@ -141,7 +150,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
                 registrations.Add(new TqRegistration
                 {
                     //Id = i,
-                    UniqueLearnerNumber = 123456789, //random.Next(1, 100000),
+                    UniqueLearnerNumber = i, //random.Next(1, 100000),
                     Firstname = "Firstname " + i,
                     Lastname = "Lastname " + i,
                     DateofBirth = DateTime.UtcNow.AddDays(100),
@@ -150,7 +159,8 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
                     Status = 1
                 });
             }
-            await _tqRegistrationRepository.BulkInsertOrUpdateAsync(registrations, r => r.UniqueLearnerNumber, r => r.Firstname, r => r.Lastname);
+            await _tqRegistrationRepository.BulkInsertOrUpdateAsync(registrations);
+            //await _tqRegistrationRepository.BulkInsertOrUpdateAsync(registrations, r => r.UniqueLearnerNumber, r => r.Firstname, r => r.Lastname);
         }
 
         private void AddValidationError(Registration reg, string message)

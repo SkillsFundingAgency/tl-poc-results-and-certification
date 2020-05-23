@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Model
 {
-    public class Registration : ValidationState
+    public class Registration: BaseModel
     {
         [Required]
         [Name(Constants.CsvHeaders.Uln)]

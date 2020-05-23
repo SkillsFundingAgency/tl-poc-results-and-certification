@@ -1,5 +1,7 @@
 ﻿using CsvHelper;
 using CsvHelper.Configuration;
+using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Model;
 using System;
@@ -11,8 +13,13 @@ using System.Threading.Tasks;
 
 namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Service
 {
-    public class CsvHelperService : ICsvHelperService
+    public class CsvHelperService<TImportModel, TModel> : ICsvHelperService<TImportModel, TModel> where TModel : class, new() where TImportModel : BaseModel
     {
+        private readonly IValidator<Registration> _validator;
+        public CsvHelperService(IValidator<Registration> validator)
+        {
+            _validator = validator;
+        }
         public async Task<IEnumerable<Registration>> ReadDataAsync(IFormFile file)
         {
             try
@@ -44,9 +51,10 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Service
                 //csv.ValidateHeader<Registration>();
                 while (await csv.ReadAsync())
                 {
+                    ValidationResult validationResult;
                     var reg = new Registration();
 
-                    reg.Uln = reg.Validate<int>(csv, Constants.CsvHeaders.Uln);
+                    reg.Uln = reg.Validate<long>(csv, Constants.CsvHeaders.Uln);
                     reg.FirstName = reg.Validate<string>(csv, Constants.CsvHeaders.FirstName);
                     reg.LastName = reg.Validate<string>(csv, Constants.CsvHeaders.LastName);
                     reg.DateOfBirth = reg.Validate<string>(csv, Constants.CsvHeaders.DateOfBirth);
@@ -56,6 +64,31 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Service
                     reg.Specialism1 = reg.Validate<string>(csv, Constants.CsvHeaders.Specialism1);
                     reg.Specialism2 = reg.Validate<string>(csv, Constants.CsvHeaders.Specialism2);
                     reg.RowNum = csv.Context.Row;
+
+                    try
+                    {
+                        validationResult = await _validator.ValidateAsync(reg);
+                    }
+                    catch (Exception exception)
+                    {
+                        validationResult = new ValidationResult { Errors = { new ValidationFailure(nameof(TModel), exception.ToString()) } };
+                    }
+
+                    if(!validationResult.IsValid)
+                    {
+                        reg.BuildError(csv.Context, validationResult: validationResult);
+                    }
+
+                    //reg.Uln = reg.Validate<int>(csv, Constants.CsvHeaders.Uln);
+                    //reg.FirstName = reg.Validate<string>(csv, Constants.CsvHeaders.FirstName);
+                    //reg.LastName = reg.Validate<string>(csv, Constants.CsvHeaders.LastName);
+                    //reg.DateOfBirth = reg.Validate<string>(csv, Constants.CsvHeaders.DateOfBirth);
+                    //reg.Ukprn = reg.Validate<int>(csv, Constants.CsvHeaders.Ukprn);
+                    //reg.StartDate = reg.Validate<string>(csv, Constants.CsvHeaders.StartDate);
+                    //reg.Core = reg.Validate<string>(csv, Constants.CsvHeaders.Core);
+                    //reg.Specialism1 = reg.Validate<string>(csv, Constants.CsvHeaders.Specialism1);
+                    //reg.Specialism2 = reg.Validate<string>(csv, Constants.CsvHeaders.Specialism2);
+                    //reg.RowNum = csv.Context.Row;
 
                     result.Add(reg);
                 }
@@ -117,6 +150,11 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Service
             //    cw.WriteRecord<StudentModel>(student);
             //    cw.NextRecord();
             //}
+        }
+
+        public Task<IList<TModel>> ValidateAndParseFileAsync(TImportModel importModel)
+        {
+            throw new NotImplementedException();
         }
     }
 }
