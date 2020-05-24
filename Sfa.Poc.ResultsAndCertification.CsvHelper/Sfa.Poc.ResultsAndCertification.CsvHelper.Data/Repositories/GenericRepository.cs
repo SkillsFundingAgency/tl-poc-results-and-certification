@@ -258,7 +258,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Data.Repositories
                         bulkConfig.UpdateByProperties = GetMemberNames(updatePropertiesBy);
                     }                   
                     
-                    await _dbContext.BulkInsertAsync(entities);
+                    await _dbContext.BulkInsertOrUpdateAsync(entities);
                 }
                 catch (Exception ex)
                 {

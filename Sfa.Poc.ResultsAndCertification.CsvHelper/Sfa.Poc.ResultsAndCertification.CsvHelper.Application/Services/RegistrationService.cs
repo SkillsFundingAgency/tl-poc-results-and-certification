@@ -117,6 +117,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
             var watch = System.Diagnostics.Stopwatch.StartNew();
             watch.Start();
 
+            
 
             var list = await _tqRegistrationRepository.GetManyAsync(x => ulns.Contains(x.UniqueLearnerNumber),
             x => x.TqSpecialismRegistrations).AsNoTracking().ToListAsync();

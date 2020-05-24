@@ -14,10 +14,10 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Controllers
     [ApiController]
     public class RegistrationController : ControllerBase
     {
-        private readonly ICsvHelperService<Registration, TqRegistration> _csvParserService;
+        private readonly ICsvHelperService<RegistrationCsvRecord, Registration> _csvParserService;
         private readonly IRegistrationService _registrationService;
 
-        public RegistrationController(ICsvHelperService<Registration, TqRegistration> csvParserService, IRegistrationService registrationService)
+        public RegistrationController(ICsvHelperService<RegistrationCsvRecord, Registration> csvParserService, IRegistrationService registrationService)
         {
             _csvParserService = csvParserService;
             _registrationService = registrationService;
@@ -31,6 +31,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Controllers
             var response = new BulkRegistrationResponse();
             foreach (var file in Request.Form.Files)
             {
+                var res = await _csvParserService.ValidateAndParseFileAsync(new RegistrationCsvRecord { File = file });
                 response.Registrations = await _csvParserService.ReadDataAsync(file);
             }
 
@@ -44,7 +45,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Controllers
             if (response.Registrations.Any(x => !x.IsValid))
                 response.ValidationErrors = response.ValidationMessages;
 
-            // var result = await _registrationService.SaveBulkRegistrationsAsync(response.Registrations, ukprn);
+            // var result = await _registrationService/r.SaveBulkRegistrationsAsync(response.Registrations, ukprn);
             
             return response;
         }

@@ -4,7 +4,7 @@ using Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Model;
 
 namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.DataValidator
 {
-    public class RegistrationDataValidator : AbstractValidator<Registration>
+    public class RegistrationDataValidator : AbstractValidator<RegistrationCsvRecord>
     {
         public RegistrationDataValidator()
         {
