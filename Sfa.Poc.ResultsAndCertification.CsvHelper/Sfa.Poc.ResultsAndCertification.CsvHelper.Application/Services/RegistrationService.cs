@@ -68,13 +68,19 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
                 // Validation: AO not registered for the T level. 
                 var isAoRegistered = aoProviderTlevels.Any(t => t.PathwayLarId == x.Core);
                 if (!isAoRegistered)
+                {
                     AddValidationError(x, "Ao not registered for T level or Invalid T level");
+                    return;
+                }
 
                 // Validation: Provider not registered for the T level
                 var isValidProvider = aoProviderTlevels.Any(t => t.ProviderUkprn == x.Ukprn && t.PathwayLarId == x.Core);
                 if (!isValidProvider)
+                {
                     AddValidationError(x, "Provider not registered for T level");
-
+                    return;
+                }
+                    
                 // Validation: Verify if valid specialisms are used.
                 var isValidSpecialisms = aoProviderTlevels.Any(t => t.ProviderUkprn == x.Ukprn && 
                                         t.PathwayLarId == x.Core && 
