@@ -29,6 +29,9 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Controllers
         {
             long ukprn = 10009696; /*NCFE*/
             var response = new BulkRegistrationResponse();
+
+            //await _registrationService.CompareRegistrations();
+
             foreach (var file in Request.Form.Files)
             {
                 var res = await _csvParserService.ValidateAndParseFileAsync(new RegistrationCsvRecord { File = file });
@@ -45,7 +48,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Controllers
             if (response.Registrations.Any(x => !x.IsValid))
                 response.ValidationErrors = response.ValidationMessages;
 
-            // var result = await _registrationService/r.SaveBulkRegistrationsAsync(response.Registrations, ukprn);
+            // var result = await _registrationService.SaveBulkRegistrationsAsync(response.Registrations, ukprn);
             
             return response;
         }

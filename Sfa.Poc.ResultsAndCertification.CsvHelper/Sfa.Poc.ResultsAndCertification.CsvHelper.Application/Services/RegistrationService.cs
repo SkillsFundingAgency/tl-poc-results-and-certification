@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Models;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Model;
 using System.Threading.Tasks;
+using Sfa.Poc.ResultsAndCertification.CsvHelper.Domain.Comparer;
 
 namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
 {
@@ -123,8 +124,6 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
             var watch = System.Diagnostics.Stopwatch.StartNew();
             watch.Start();
 
-            
-
             var list = await _tqRegistrationRepository.GetManyAsync(x => ulns.Contains(x.UniqueLearnerNumber),
             x => x.TqSpecialismRegistrations).AsNoTracking().ToListAsync();
 
@@ -168,6 +167,69 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
             }
             await _tqRegistrationRepository.BulkInsertOrUpdateAsync(registrations);
             //await _tqRegistrationRepository.BulkInsertOrUpdateAsync(registrations, r => r.UniqueLearnerNumber, r => r.Firstname, r => r.Lastname);
+        }
+
+        public async Task CompareRegistrations()
+        {
+            var seedValue = 0;
+            var entitiesToLoad = 7000;
+            var ulns = new HashSet<long>();
+            var registrations = new List<TqRegistration>();
+            var dateTimeNow = DateTime.Now;
+            Random random = new Random();
+            for (int i = 1; i <= entitiesToLoad; i++)
+            {
+                ulns.Add(seedValue + i);
+
+                var reg = new TqRegistration
+                {
+                    //Id = i,
+                    UniqueLearnerNumber = seedValue + i,
+                    Firstname = "Firstname " + (seedValue + i),
+                    Lastname = "Lastname " + (seedValue + i),
+                    DateofBirth = DateTime.UtcNow.AddDays(98),
+                    TqProviderId = 1,
+                    StartDate = dateTimeNow.Date.AddDays(-2),
+                    Status = 2                   
+                };
+
+                //if(i >= 10)
+                //{
+                //    reg.TqSpecialismRegistrations = new List<TqSpecialismRegistration>
+                //    {
+                //        new TqSpecialismRegistration
+                //        {
+                //            TqRegistrationId = 1,
+                //            TlSpecialismId = 1,
+                //            Status = 2
+                //        }
+                //    };
+                //}
+
+                registrations.Add(reg);
+            }
+
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+            watch.Start();
+
+            var existingRegistrations = await _tqRegistrationRepository.GetManyAsync(x => x.Status == 1 && ulns.Contains(x.UniqueLearnerNumber),
+                                                                    x => x.TqSpecialismRegistrations).ToListAsync();
+
+            var comparer = new TqRegistrationEqualityComparer();
+            var newRegistrations = registrations.Where(x => !existingRegistrations.Any(e => e.UniqueLearnerNumber == x.UniqueLearnerNumber)).ToList();
+            var updateRegistrations = registrations.Where(x => existingRegistrations.Any(e => e.UniqueLearnerNumber == x.UniqueLearnerNumber)).ToList();
+            
+            var sameOrDuplicateRegistrations = existingRegistrations.Intersect(registrations, comparer).ToList();
+            var modifiedRegistrations = updateRegistrations.Except(sameOrDuplicateRegistrations, comparer).ToList();
+
+            modifiedRegistrations.ForEach(r => r.Id = existingRegistrations.FirstOrDefault(x => x.UniqueLearnerNumber == r.UniqueLearnerNumber).Id);
+
+            var registrationsToSendToDB = newRegistrations.Concat(modifiedRegistrations).ToList();
+
+            await _tqRegistrationRepository.BulkInsertOrUpdateAsync(registrationsToSendToDB);
+
+            watch.Stop();
+            var sec = watch.ElapsedMilliseconds;
         }
 
         private void AddValidationError(Registration reg, string message)

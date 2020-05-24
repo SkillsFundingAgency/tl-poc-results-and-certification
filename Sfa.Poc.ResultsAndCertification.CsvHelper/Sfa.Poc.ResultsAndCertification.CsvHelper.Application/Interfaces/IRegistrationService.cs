@@ -12,9 +12,8 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Interfaces
         Task<IEnumerable<Tlevel>> GetAllTLevelsByAoUkprnAsync(long ukPrn);
         Task<BulkRegistrationResponse> ValidateRegistrationTlevelsAsync(long ukprn, IEnumerable<Registration> regdata);
         Task<bool> SaveBulkRegistrationsAsync(IEnumerable<Registration> regdata, long ukprn);
-
         Task ProcessRegistrations(IList<TqRegistration> registrations);
-
         Task ReadRegistrations(IList<TqRegistration> registrations);
+        Task CompareRegistrations();
     }
 }

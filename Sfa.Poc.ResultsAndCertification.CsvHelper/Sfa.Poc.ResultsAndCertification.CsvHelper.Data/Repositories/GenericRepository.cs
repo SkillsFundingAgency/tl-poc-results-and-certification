@@ -249,22 +249,37 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Data.Repositories
         {
             if (entities != null && entities.Count > 0)
             {
-                try
+                using (var transaction = await _dbContext.Database.BeginTransactionAsync())
                 {
-                    var bulkConfig = new BulkConfig() { SetOutputIdentity = true, CalculateStats = true };
-
-                    if (updatePropertiesBy != null && updatePropertiesBy.Length > 0)
+                    try
                     {
-                        bulkConfig.UpdateByProperties = GetMemberNames(updatePropertiesBy);
-                    }                   
-                    
-                    await _dbContext.BulkInsertOrUpdateAsync(entities);
+                        var bulkConfig = new BulkConfig() { UseTempDB = true, SetOutputIdentity = true, CalculateStats = true };
+                        await _dbContext.BulkInsertOrUpdateAsync(entities, bulkConfig);
+                        transaction.Commit();
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex.Message, ex.InnerException);
+                        transaction.Rollback();
+                        throw;
+                    }
                 }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex.Message, ex.InnerException);
-                    throw;
-                }
+                //try
+                //{
+                //    var bulkConfig = new BulkConfig() { SetOutputIdentity = true, CalculateStats = true };
+
+                //    if (updatePropertiesBy != null && updatePropertiesBy.Length > 0)
+                //    {
+                //        bulkConfig.UpdateByProperties = GetMemberNames(updatePropertiesBy);
+                //    }                   
+
+                //    await _dbContext.BulkInsertOrUpdateAsync(entities);
+                //}
+                //catch (Exception ex)
+                //{
+                //    _logger.LogError(ex.Message, ex.InnerException);
+                //    throw;
+                //}
             }
             return entities;
         }
