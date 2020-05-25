@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using EFCore.BulkExtensions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Data.Interfaces;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Domain.Models;
@@ -13,7 +15,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Data.Repositories
 {
     public class GenericRepository<T> : IRepository<T> where T : BaseEntity, new()
     {
-        private readonly ILogger _logger;
+        protected readonly ILogger _logger;
         protected readonly ResultsAndCertificationDbContext _dbContext;
 
         public GenericRepository(ILogger<GenericRepository<T>> logger, ResultsAndCertificationDbContext dbContext)
@@ -249,21 +251,42 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Data.Repositories
         {
             if (entities != null && entities.Count > 0)
             {
-                using (var transaction = await _dbContext.Database.BeginTransactionAsync())
+                var strategy = _dbContext.Database.CreateExecutionStrategy();
+                await strategy.ExecuteAsync(async () =>
                 {
-                    try
+                    using (var transaction = _dbContext.Database.BeginTransaction())
                     {
-                        var bulkConfig = new BulkConfig() { UseTempDB = true, SetOutputIdentity = true, CalculateStats = true };
-                        await _dbContext.BulkInsertOrUpdateAsync(entities, bulkConfig);
-                        transaction.Commit();
+                        try
+                        {
+                            var bulkConfig = new BulkConfig() { UseTempDB = true, SetOutputIdentity = true, CalculateStats = true };
+                            await _dbContext.BulkInsertOrUpdateAsync(entities, bulkConfig);
+                            transaction.Commit();
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex.Message, ex.InnerException);
+                            transaction.Rollback();
+                            throw;
+                        }
                     }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex.Message, ex.InnerException);
-                        transaction.Rollback();
-                        throw;
-                    }
-                }
+                });
+
+                //using (var transaction = _dbContext.Database.BeginTransaction())
+                //{
+                //    try
+                //    {
+                //        var bulkConfig = new BulkConfig() { UseTempDB = true, UseOnlyDataTable = true, SetOutputIdentity = true, CalculateStats = true };
+                //        await _dbContext.BulkInsertOrUpdateAsync(entities, bulkConfig);
+                //        transaction.Commit();
+                //    }
+                //    catch (Exception ex)
+                //    {
+                //        _logger.LogError(ex.Message, ex.InnerException);
+                //        transaction.Rollback();
+                //        throw;
+                //    }
+                //}
+
                 //try
                 //{
                 //    var bulkConfig = new BulkConfig() { SetOutputIdentity = true, CalculateStats = true };

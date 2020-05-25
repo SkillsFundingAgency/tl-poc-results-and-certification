@@ -14,15 +14,17 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Domain.Comparer
             else if (x.GetType() != y.GetType())
                 return false;
             else
-                return x.TqRegistrationId == y.TqRegistrationId && x.TlSpecialismId == y.TlSpecialismId && x.Status == y.Status;
+                return x.TlSpecialismId == y.TlSpecialismId && x.Status == y.Status;
+            //return x.TqRegistrationId == y.TqRegistrationId && x.TlSpecialismId == y.TlSpecialismId && x.Status == y.Status;
         }
 
         public int GetHashCode(TqSpecialismRegistration reg)
         {
             unchecked
             {
-                var hashCode = reg.TqRegistrationId;
-                hashCode = (hashCode * 397) ^ reg.TlSpecialismId.GetHashCode();
+                //var hashCode = reg.TqRegistrationId;
+                //hashCode = (hashCode * 397) ^ reg.TlSpecialismId.GetHashCode();
+                var hashCode = reg.TlSpecialismId;
                 hashCode = (hashCode * 397) ^ reg.Status.GetHashCode();
                 return hashCode;
             }

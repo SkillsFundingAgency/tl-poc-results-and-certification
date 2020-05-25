@@ -11,6 +11,7 @@ using Sfa.Poc.ResultsAndCertification.CsvHelper.Models;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Model;
 using System.Threading.Tasks;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Domain.Comparer;
+using Sfa.Poc.ResultsAndCertification.CsvHelper.Data.Repositories;
 
 namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
 {
@@ -20,13 +21,16 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
         private readonly ResultsAndCertificationDbContext ctx;
         private readonly IRepository<TqRegistration> _tqRegistrationRepository;
         private readonly IRepository<TqSpecialismRegistration> _tqSpecialismRegistrationRepository;
+        private readonly IRegistrationRepository _registrationRepository;
 
         public RegistrationService(IRepository<TlPathway> pathwayRepository, ResultsAndCertificationDbContext context,
-            IRepository<TqRegistration> tqRegistrationRepository, IRepository<TqSpecialismRegistration> tqSpecialismRegistrationRepository)
+            IRepository<TqRegistration> tqRegistrationRepository, IRepository<TqSpecialismRegistration> tqSpecialismRegistrationRepository,
+            IRegistrationRepository registrationRepository)
         {
             _pathwayRepository = pathwayRepository;
             _tqRegistrationRepository = tqRegistrationRepository;
             _tqSpecialismRegistrationRepository = tqSpecialismRegistrationRepository;
+            _registrationRepository = registrationRepository;
             ctx = context;
         }
 
@@ -81,11 +85,11 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
                     AddValidationError(x, "Provider not registered for T level");
                     return;
                 }
-                    
+
                 // Validation: Verify if valid specialisms are used.
-                var isValidSpecialisms = aoProviderTlevels.Any(t => t.ProviderUkprn == x.Ukprn && 
-                                        t.PathwayLarId == x.Core && 
-                                        (string.IsNullOrWhiteSpace(x.Specialism1)|| t.TlSpecialismLarIds.Contains(x.Specialism1)) &&
+                var isValidSpecialisms = aoProviderTlevels.Any(t => t.ProviderUkprn == x.Ukprn &&
+                                        t.PathwayLarId == x.Core &&
+                                        (string.IsNullOrWhiteSpace(x.Specialism1) || t.TlSpecialismLarIds.Contains(x.Specialism1)) &&
                                         (string.IsNullOrWhiteSpace(x.Specialism2) || t.TlSpecialismLarIds.Contains(x.Specialism2)));
 
                 if (!isValidSpecialisms)
@@ -129,16 +133,16 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
 
             watch.Stop();
             var sec = watch.ElapsedMilliseconds;
-            
+
             var results = await _tqRegistrationRepository.BulkReadAsync(registrations, r => r.UniqueLearnerNumber);
 
             var specialismRegistrations = new List<TqSpecialismRegistration>();
 
-            foreach(var r in results)
+            foreach (var r in results)
             {
                 specialismRegistrations.Add(new TqSpecialismRegistration
                 {
-                    TqRegistrationId = r.Id                    
+                    TqRegistrationId = r.Id
                 });
             }
             var specialismResults = await _tqSpecialismRegistrationRepository.BulkReadAsync(specialismRegistrations, r => r.TqRegistrationId);
@@ -172,7 +176,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
         public async Task CompareRegistrations()
         {
             var seedValue = 0;
-            var entitiesToLoad = 7000;
+            var entitiesToLoad = 10000;
             var ulns = new HashSet<long>();
             var registrations = new List<TqRegistration>();
             var dateTimeNow = DateTime.Now;
@@ -187,24 +191,30 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
                     UniqueLearnerNumber = seedValue + i,
                     Firstname = "Firstname " + (seedValue + i),
                     Lastname = "Lastname " + (seedValue + i),
-                    DateofBirth = DateTime.UtcNow.AddDays(98),
+                    DateofBirth = DateTime.UtcNow.AddDays(97),
                     TqProviderId = 1,
-                    StartDate = dateTimeNow.Date.AddDays(-2),
-                    Status = 2                   
+                    StartDate = dateTimeNow.Date.AddDays(-3),
+                    Status = 2
                 };
 
-                //if(i >= 10)
-                //{
-                //    reg.TqSpecialismRegistrations = new List<TqSpecialismRegistration>
-                //    {
-                //        new TqSpecialismRegistration
-                //        {
-                //            TqRegistrationId = 1,
-                //            TlSpecialismId = 1,
-                //            Status = 2
-                //        }
-                //    };
-                //}
+                if (i <= entitiesToLoad)
+                {
+                    reg.TqSpecialismRegistrations = new List<TqSpecialismRegistration>
+                    {
+                        new TqSpecialismRegistration
+                        {
+                            //TqRegistrationId = 1,
+                            TlSpecialismId = 1,
+                            Status = 1
+                        }
+                        //new TqSpecialismRegistration
+                        //{
+                        //    //TqRegistrationId = 1,
+                        //    TlSpecialismId = 2,
+                        //    Status = 1
+                        //}
+                    };
+                }
 
                 registrations.Add(reg);
             }
@@ -212,22 +222,70 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
             var watch = System.Diagnostics.Stopwatch.StartNew();
             watch.Start();
 
-            var existingRegistrations = await _tqRegistrationRepository.GetManyAsync(x => x.Status == 1 && ulns.Contains(x.UniqueLearnerNumber),
-                                                                    x => x.TqSpecialismRegistrations).ToListAsync();
+            var existingRegistrationsFromDb = await _tqRegistrationRepository
+                                                    .GetManyAsync(x => x.Status == 1 && ulns.Contains(x.UniqueLearnerNumber),
+                                                                  x => x.TqProvider, x => x.TqSpecialismRegistrations)
+                                                    .ToListAsync();
 
             var comparer = new TqRegistrationEqualityComparer();
-            var newRegistrations = registrations.Where(x => !existingRegistrations.Any(e => e.UniqueLearnerNumber == x.UniqueLearnerNumber)).ToList();
-            var updateRegistrations = registrations.Where(x => existingRegistrations.Any(e => e.UniqueLearnerNumber == x.UniqueLearnerNumber)).ToList();
-            
-            var sameOrDuplicateRegistrations = existingRegistrations.Intersect(registrations, comparer).ToList();
-            var modifiedRegistrations = updateRegistrations.Except(sameOrDuplicateRegistrations, comparer).ToList();
+            var newRegistrations = registrations.Where(x => !existingRegistrationsFromDb.Any(e => e.UniqueLearnerNumber == x.UniqueLearnerNumber)).ToList();
+            var matchedRegistrations = registrations.Where(x => existingRegistrationsFromDb.Any(e => e.UniqueLearnerNumber == x.UniqueLearnerNumber)).ToList();
+            var sameOrDuplicateRegistrations = matchedRegistrations.Intersect(existingRegistrationsFromDb, comparer).ToList();
 
-            modifiedRegistrations.ForEach(r => r.Id = existingRegistrations.FirstOrDefault(x => x.UniqueLearnerNumber == r.UniqueLearnerNumber).Id);
+            var modifiedRegistrations = new List<TqRegistration>();
 
-            var registrationsToSendToDB = newRegistrations.Concat(modifiedRegistrations).ToList();
+            if (matchedRegistrations.Count != sameOrDuplicateRegistrations.Count)
+            {
+                modifiedRegistrations = matchedRegistrations.Except(sameOrDuplicateRegistrations, comparer).ToList();
 
-            await _tqRegistrationRepository.BulkInsertOrUpdateAsync(registrationsToSendToDB);
+                //var sameOrDuplicateRegistrations = existingRegistrationsFromDb.Intersect(registrations, comparer).ToList();
+                //var modifiedRegistrations = matchedRegistrations.Except(sameOrDuplicateRegistrations, comparer).ToList();
 
+                var specialismComparer = new TqSpecialismRegistrationEqualityComparer();
+
+                modifiedRegistrations.ForEach(mr =>
+                {
+                    var reg = existingRegistrationsFromDb.FirstOrDefault(x => x.UniqueLearnerNumber == mr.UniqueLearnerNumber);
+
+                    if (reg != null)
+                    {
+                        mr.Id = reg.Id;
+
+                        var specialismsInDb = reg.TqSpecialismRegistrations.Where(s => s.Status == 1);
+
+                        // update TqRegistrationId
+                        mr.TqSpecialismRegistrations.ToList().ForEach(sp => sp.TqRegistrationId = reg.Id);
+
+                        //1.Check if this registration belongs to this AO. If not throw validation error -- TODO
+                        //2.Check if provider has changed or not -- TODO need to check with business
+                        //3.Check if specialism has changed or not, if changed then update status to 2 // withdraw and create new record
+
+                        //1,1 -2,1
+                        //3,1 2,1 - 1,1 2,1
+                        //3,1 4,1 - 1,1 2,1
+                        //3,1 4,1 - 1,1 2,1 4,1
+
+                        // below commented line using EqualityComprarer
+                        //var specialismsToAdd = mr.TqSpecialismRegistrations.Except(specialismsInDb, specialismComparer).ToList();
+                        //var specialismsToUpdate = specialismsInDb.Except(mr.TqSpecialismRegistrations, specialismComparer).ToList();
+
+                        var specialismsToAdd = mr.TqSpecialismRegistrations.Where(s => !specialismsInDb.Any(r => r.TlSpecialismId == s.TlSpecialismId && r.Status == 1)).ToList();
+                        var specialismsToUpdate = specialismsInDb.Where(s => !mr.TqSpecialismRegistrations.Any(r => r.TlSpecialismId == s.TlSpecialismId && r.Status == 1)).ToList();
+
+                        specialismsToUpdate.ForEach(s => s.Status = 2); // change the status to inactive or withdrawn
+
+                        mr.TqSpecialismRegistrations.Clear();
+                        mr.TqSpecialismRegistrations = specialismsToAdd.Concat(specialismsToUpdate).ToList();
+                    }
+                });
+            }
+
+            if (newRegistrations.Count > 0 || modifiedRegistrations.Count > 0)
+            {
+                var registrationsToSendToDB = newRegistrations.Concat(modifiedRegistrations).ToList();
+                await _registrationRepository.BulkInsertOrUpdateRegistrations(registrationsToSendToDB);
+                //await _tqRegistrationRepository.BulkInsertOrUpdateAsync(registrationsToSendToDB);
+            }
             watch.Stop();
             var sec = watch.ElapsedMilliseconds;
         }

@@ -141,7 +141,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api
             services.AddDbContext<ResultsAndCertificationDbContext>(options =>
                 options.UseSqlServer(ResultsAndCertificationConfiguration.SqlConnectionString,
                     builder => builder.UseNetTopologySuite()
-                                      .EnableRetryOnFailure()));
+                                      .EnableRetryOnFailure()), ServiceLifetime.Transient);
 
             services.AddSingleton(ResultsAndCertificationConfiguration);
 
@@ -150,8 +150,9 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api
         }
 
         private static void RegisterRepositories(IServiceCollection services)
-        {
+        {            
             services.AddTransient(typeof(IRepository<>), typeof(GenericRepository<>));
+            services.AddTransient<IRegistrationRepository, RegistrationRepository>();
         }
 
         private static void RegisterApplicationServices(IServiceCollection services)
