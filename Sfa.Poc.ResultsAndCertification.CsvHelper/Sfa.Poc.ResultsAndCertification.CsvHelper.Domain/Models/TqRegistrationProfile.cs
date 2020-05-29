@@ -14,7 +14,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Domain.Models
         public int UniqueLearnerNumber { get; set; }
         public string Firstname { get; set; }
         public string Lastname { get; set; }
-        public DateTime? DateofBirth { get; set; }
+        public DateTime DateofBirth { get; set; }
 
         public virtual ICollection<TqRegistrationPathway> TqRegistrationPathway { get; set; }
     }
