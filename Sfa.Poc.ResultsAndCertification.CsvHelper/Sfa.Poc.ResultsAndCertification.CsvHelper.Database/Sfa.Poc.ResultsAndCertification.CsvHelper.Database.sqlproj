@@ -93,5 +93,8 @@
   <ItemGroup>
     <Build Include="Tables\TqRegistration.sql" />
     <Build Include="Tables\TqSpecialismRegistration.sql" />
+    <Build Include="Tables\TqRegistrationProfile.sql" />
+    <Build Include="Tables\TqRegistrationPathway.sql" />
+    <Build Include="Tables\TqRegistrationSpecialism.sql" />
   </ItemGroup>
 </Project>
