@@ -20,7 +20,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Domain.Comparer
             else if (x.GetType() != y.GetType())
                 return false;
             else
-                return x.TqRegistrationId == y.TqRegistrationId && x.TqProviderId == y.TqProviderId
+                return x.TqRegistrationProfileId == y.TqRegistrationProfileId && x.TqProviderId == y.TqProviderId
                     && Equals(x.StartDate, y.StartDate)
                     && Equals(x.EndDate, y.EndDate)
                     && x.Status == y.Status;
@@ -30,13 +30,13 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Domain.Comparer
         {
             unchecked
             {
-                var hashCode = regPathway.TqRegistrationId.GetHashCode();
+                var hashCode = regPathway.TqRegistrationProfileId.GetHashCode();
                 hashCode = (hashCode * 397) ^ regPathway.TqProviderId.GetHashCode();
                 hashCode = (hashCode * 397) ^ regPathway.StartDate.GetHashCode();
                 hashCode = (hashCode * 397) ^ (regPathway.EndDate != null ? regPathway.EndDate.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ regPathway.Status.GetHashCode();
 
-                foreach (var registrationSpecialism in regPathway.TqRegistrationSpecialism)
+                foreach (var registrationSpecialism in regPathway.TqRegistrationSpecialisms)
                 {
                     hashCode = (hashCode * 397) ^ _tqRegistrationSpecialismComparer.GetHashCode(registrationSpecialism);
                 }

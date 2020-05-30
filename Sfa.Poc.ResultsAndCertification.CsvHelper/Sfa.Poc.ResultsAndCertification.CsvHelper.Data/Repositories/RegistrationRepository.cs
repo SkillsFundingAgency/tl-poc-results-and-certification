@@ -20,15 +20,15 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Data.Repositories
                 var strategy = _dbContext.Database.CreateExecutionStrategy();
                 await strategy.ExecuteAsync(async () =>
                 {
-                    using (var transaction = _dbContext.Database.BeginTransaction())
+                    using (var transaction = await _dbContext.Database.BeginTransactionAsync())
                     {
                         try
                         {
-                            var bulkConfig = new BulkConfig() { UseTempDB = true, SetOutputIdentity = true, CalculateStats = true };
+                            var bulkConfig = new BulkConfig() { UseTempDB = true, PreserveInsertOrder = true, SetOutputIdentity = true };
                             await _dbContext.BulkInsertOrUpdateAsync(entities, bulkConfig);
-                            
+
                             var specialismRegistrations = new List<TqSpecialismRegistration>();
-                            
+
                             foreach (var entity in entities)
                             {
                                 if (entity.TqSpecialismRegistrations.Count > 0)
@@ -41,9 +41,67 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Data.Repositories
                                 }
                             }
 
-                            if(specialismRegistrations.Count > 0)
+                            if (specialismRegistrations.Count > 0)
                             {
                                 await _dbContext.BulkInsertOrUpdateAsync(specialismRegistrations, bulkConfig);
+                            }
+
+                            transaction.Commit();
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex.Message, ex.InnerException);
+                            transaction.Rollback();
+                            throw;
+                        }
+                    }
+                });
+            }
+            return entities;
+        }
+
+        public async Task<IList<TqRegistrationProfile>> BulkInsertOrUpdateTqRegistrations(List<TqRegistrationProfile> entities)
+        {
+            if (entities != null && entities.Count > 0)
+            {
+                var strategy = _dbContext.Database.CreateExecutionStrategy();
+                await strategy.ExecuteAsync(async () =>
+                {
+                    using (var transaction = await _dbContext.Database.BeginTransactionAsync())
+                    {
+                        try
+                        {
+                            //var bulkConfig = new BulkConfig() { UseTempDB = true, SetOutputIdentity = true, CalculateStats = true };
+                            var bulkConfig = new BulkConfig() { UseTempDB = true, PreserveInsertOrder = true, SetOutputIdentity = true };
+                            await _dbContext.BulkInsertOrUpdateAsync(entities, bulkConfig);
+
+                            var pathwayRegistrations = new List<TqRegistrationPathway>();
+
+                            foreach (var entity in entities)
+                            {
+                                foreach (var pathwayRegistration in entity.TqRegistrationPathways)
+                                {
+                                    pathwayRegistration.TqRegistrationProfileId = entity.Id;
+                                    pathwayRegistrations.Add(pathwayRegistration);
+                                }
+                            }
+
+                            await _dbContext.BulkInsertOrUpdateAsync(pathwayRegistrations, bulkConfig);
+
+                            var specialismRegistrations = new List<TqRegistrationSpecialism>();
+
+                            foreach (var entity in pathwayRegistrations)
+                            {
+                                foreach (var specialismRegistration in entity.TqRegistrationSpecialisms)
+                                {
+                                    specialismRegistration.TqRegistrationPathwayId = entity.Id;
+                                    specialismRegistrations.Add(specialismRegistration);
+                                }
+                            }
+
+                            if (specialismRegistrations.Count > 0)
+                            {
+                                await _dbContext.BulkInsertOrUpdateAsync(specialismRegistrations, bulkConfig => bulkConfig.UseTempDB = true);
                             }
 
                             transaction.Commit();

@@ -33,7 +33,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Domain.Comparer
                 hashCode = (hashCode * 397) ^ (reg.Lastname != null ? reg.Lastname.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (reg.DateofBirth != null ? reg.DateofBirth.GetHashCode() : 0);
 
-                foreach (var registrationPathway in reg.TqRegistrationPathway)
+                foreach (var registrationPathway in reg.TqRegistrationPathways)
                 {
                     hashCode = (hashCode * 397) ^ _tqRegistrationPathwayComprarer.GetHashCode(registrationPathway);
                 }

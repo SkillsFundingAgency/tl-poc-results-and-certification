@@ -31,6 +31,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Controllers
             var response = new BulkRegistrationResponse();
 
             //await _registrationService.CompareRegistrations();
+            await _registrationService.CompareAndProcessRegistrations();
 
             foreach (var file in Request.Form.Files)
             {
