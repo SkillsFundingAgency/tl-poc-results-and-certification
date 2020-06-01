@@ -170,7 +170,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Service
                 var result = new List<Registration>();
                 csv.Read();
                 csv.ReadHeader();  // TODO: header needs to be validated.
-                var rownum = 0;
+                var rownum = 1;
                 while (csv.Read())
                 {
                     rownum++;
@@ -198,7 +198,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Service
 
                     var reg = _dataParser.Parse(importModel, rownum);
                     returnModel.Add(reg);
-                    importModel.ValidationErrors.Clear();
+                    importModel.ValidationErrors.Clear(); // TODO review required.
                 }
             }
             catch (UnauthorizedAccessException e)

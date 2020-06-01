@@ -73,10 +73,10 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
             regdata.ToList().ForEach(x =>
             {
                 // Validation: AO not registered for the T level. 
-                var isAoRegistered = aoProviderTlevels.Any(t => t.PathwayLarId == x.Core);
+                var isAoRegistered = aoProviderTlevels.Any(t => t.ProviderUkprn == x.Ukprn);
                 if (!isAoRegistered)
                 {
-                    AddValidationError(x, "Ao not registered for T level or Invalid T level");
+                    AddValidationError(x, "Provider not registered for AO.");
                     return;
                 }
 
@@ -352,6 +352,8 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
 
             var modifiedRegistrations = new List<TqRegistrationProfile>();
 
+            var toModify = matchedRegistrations.Except(sameOrDuplicateRegistrations);
+
             if (matchedRegistrations.Count != sameOrDuplicateRegistrations.Count)
             {
                 modifiedRegistrations = matchedRegistrations.Where(r => !sameOrDuplicateRegistrations.Any(s => s.UniqueLearnerNumber == r.UniqueLearnerNumber)).ToList();
@@ -497,6 +499,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
                 var registrationsToSendToDB = newRegistrations.Concat(modifiedRegistrations).ToList();
                 //await _registrationRepository.BulkInsertOrUpdateTqRegistrations(registrationsToSendToDB);
             }
+
             watch.Stop();
             var sec = watch.ElapsedMilliseconds;
         }

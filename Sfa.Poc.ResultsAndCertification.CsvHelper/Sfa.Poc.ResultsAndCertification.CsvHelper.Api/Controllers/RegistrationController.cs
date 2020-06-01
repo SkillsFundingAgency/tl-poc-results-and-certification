@@ -30,7 +30,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Controllers
             var response = new BulkRegistrationResponse();
 
             //await _registrationService.CompareRegistrations();
-            await _registrationService.CompareAndProcessRegistrations();
+            //await _registrationService.CompareAndProcessRegistrations();
 
             // Stage 2 validation
             IList<Registration> stageTwoResponse = new List<Registration>();
@@ -43,6 +43,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Controllers
             var stageThreeResponse = await _registrationService.ValidateRegistrationTlevelsAsync(ukprn, stageTwoResponse.Where(x => x.IsValid));
             if (stageTwoResponse.Any(x => !x.IsValid) || stageThreeResponse.Any(x => !x.IsValid))
             {
+                // Merge both Stage2 and Stage3 validations and return.
                 var invalidRegistrations = stageTwoResponse.Where(x => !x.IsValid)
                                                 .Concat(stageThreeResponse.Where(x => !x.IsValid));
                 response.Registrations = invalidRegistrations;
@@ -50,8 +51,11 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Controllers
                 return response;
             }
 
+            // TODO: map here
+            // TODO: contract with createdBy
+
             //var result = await _registrationService.SaveBulkRegistrationsAsync(stageTwoResponse, ukprn);
-            
+
             return response;
         }
     }
