@@ -14,17 +14,27 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Domain.Comparer
             else if (x.GetType() != y.GetType())
                 return false;
             else
-                return x.TqRegistrationPathwayId == y.TqRegistrationPathwayId
-                     && x.TlSpecialismId == y.TlSpecialismId && x.Status == y.Status;
+            {
+                var retVal = 
+                    //x.TqRegistrationPathwayId == y.TqRegistrationPathwayId &&
+                    x.TlSpecialismId == y.TlSpecialismId
+                    && Equals(x.StartDate, y.StartDate)
+                    && Equals(x.EndDate, y.EndDate)
+                    && x.Status == y.Status;
+                return retVal;
+            }
         }
 
-        public int GetHashCode(TqRegistrationSpecialism reg)
+        public int GetHashCode(TqRegistrationSpecialism regSpecialism)
         {
             unchecked
             {
-                var hashCode = reg.TqRegistrationPathwayId;
-                hashCode = (hashCode * 397) ^ reg.TlSpecialismId.GetHashCode();
-                hashCode = (hashCode * 397) ^ reg.Status.GetHashCode();
+                var hashCode = regSpecialism.TlSpecialismId.GetHashCode();
+                //var hashCode = reg.TqRegistrationPathwayId.GetHashCode();
+                //hashCode = (hashCode * 397) ^ reg.TlSpecialismId.GetHashCode();
+                hashCode = (hashCode * 397) ^ regSpecialism.StartDate.GetHashCode();
+                hashCode = (hashCode * 397) ^ (regSpecialism.EndDate != null ? regSpecialism.EndDate.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ regSpecialism.Status.GetHashCode();
                 return hashCode;
             }
         }

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Data.Repositories
 {
-    public class RegistrationRepository : GenericRepository<TqRegistration>, IRegistrationRepository
+    public class RegistrationRepository : GenericRepository<TqRegistrationProfile>, IRegistrationRepository
     {
         public RegistrationRepository(ILogger<RegistrationRepository> logger, ResultsAndCertificationDbContext dbContext) : base(logger, dbContext) { }
 
@@ -72,7 +72,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Data.Repositories
                         try
                         {
                             //var bulkConfig = new BulkConfig() { UseTempDB = true, SetOutputIdentity = true, CalculateStats = true };
-                            var bulkConfig = new BulkConfig() { UseTempDB = true, PreserveInsertOrder = true, SetOutputIdentity = true };
+                            var bulkConfig = new BulkConfig() { UseTempDB = true, PreserveInsertOrder = true, SetOutputIdentity = true, BatchSize = 10000, BulkCopyTimeout = 0 };
                             await _dbContext.BulkInsertOrUpdateAsync(entities, bulkConfig);
 
                             var pathwayRegistrations = new List<TqRegistrationPathway>();
@@ -101,7 +101,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Data.Repositories
 
                             if (specialismRegistrations.Count > 0)
                             {
-                                await _dbContext.BulkInsertOrUpdateAsync(specialismRegistrations, bulkConfig => bulkConfig.UseTempDB = true);
+                                await _dbContext.BulkInsertOrUpdateAsync(specialismRegistrations, bulkConfig => { bulkConfig.UseTempDB = true; bulkConfig.BatchSize = 10000; bulkConfig.BulkCopyTimeout = 0; });
                             }
 
                             transaction.Commit();

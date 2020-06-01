@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Data.Interfaces
 {
-    public interface IRegistrationRepository : IRepository<TqRegistration>
+    public interface IRegistrationRepository : IRepository<TqRegistrationProfile>
     {
         Task<IList<TqRegistration>> BulkInsertOrUpdateRegistrations(List<TqRegistration> entities);
 
