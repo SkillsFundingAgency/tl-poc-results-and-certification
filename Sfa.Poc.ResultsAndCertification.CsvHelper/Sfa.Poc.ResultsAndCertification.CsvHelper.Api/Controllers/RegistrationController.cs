@@ -29,6 +29,9 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Controllers
             long ukprn = 10009696; /*NCFE*/
             var response = new BulkRegistrationResponse();
 
+            //await _registrationService.CompareRegistrations();
+            await _registrationService.CompareAndProcessRegistrations();
+
             // Stage 2 validation
             IList<Registration> stageTwoResponse = new List<Registration>();
             foreach (var file in Request.Form.Files)

@@ -14,5 +14,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Interfaces
         Task ProcessRegistrations(IList<TqRegistration> registrations);
         Task ReadRegistrations(IList<TqRegistration> registrations);
         Task CompareRegistrations();
+
+        Task CompareAndProcessRegistrations();
     }
 }
