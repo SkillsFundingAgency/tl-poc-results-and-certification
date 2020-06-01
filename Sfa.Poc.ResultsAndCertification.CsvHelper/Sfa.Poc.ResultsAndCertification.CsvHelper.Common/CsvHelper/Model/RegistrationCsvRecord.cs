@@ -46,12 +46,8 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Model
 
         [Required]
         [Column(Order = 7)]
-        [Name(Constants.CsvHeaders.Specialism1)]
-        public string Specialism1 { get; set; }
-
-        [Column(Order = 8)]
-        [Name(Constants.CsvHeaders.Specialism2)]
-        public string Specialism2 { get; set; }
+        [Name(Constants.CsvHeaders.Specialisms)]
+        public string Specialisms { get; set; }
 
         public int RowNum { get; set; }
     }

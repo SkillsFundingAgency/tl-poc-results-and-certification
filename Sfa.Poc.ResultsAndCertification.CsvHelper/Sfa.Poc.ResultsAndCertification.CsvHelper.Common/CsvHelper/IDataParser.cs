@@ -5,6 +5,6 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper
 {
     public interface IDataParser<out T> where T : class
     {
-        T Parse(BaseModel model);
+        T Parse(BaseModel model, int rownum);
     }
 }

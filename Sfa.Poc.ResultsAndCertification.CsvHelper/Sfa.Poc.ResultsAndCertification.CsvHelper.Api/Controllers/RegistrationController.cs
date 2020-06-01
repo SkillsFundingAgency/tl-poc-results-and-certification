@@ -1,11 +1,10 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Interfaces;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Model;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Service;
-using Sfa.Poc.ResultsAndCertification.CsvHelper.Domain.Models;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Models;
 
 namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Controllers
@@ -33,23 +32,25 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Controllers
             //await _registrationService.CompareRegistrations();
             //await _registrationService.CompareAndProcessRegistrations();
 
+            // Stage 2 validation
+            IList<Registration> stageTwoResponse = new List<Registration>();
             foreach (var file in Request.Form.Files)
             {
-                var res = await _csvParserService.ValidateAndParseFileAsync(new RegistrationCsvRecord { File = file });
-                response.Registrations = await _csvParserService.ReadDataAsync(file);
+                stageTwoResponse = await _csvParserService.ValidateAndParseFileAsync(new RegistrationCsvRecord { File = file });
             }
 
-            // Step: Proceed with validation aginst to DB.
-            var validationResult = await _registrationService.ValidateRegistrationTlevelsAsync(ukprn, response.Registrations.Where(x => x.IsValid));
-            if (!validationResult.IsValid)
+            // Stage 3 validation.
+            var stageThreeResponse = await _registrationService.ValidateRegistrationTlevelsAsync(ukprn, stageTwoResponse.Where(x => x.IsValid));
+            if (stageTwoResponse.Any(x => !x.IsValid) || stageThreeResponse.Any(x => !x.IsValid))
             {
-                return validationResult;
+                var invalidRegistrations = stageTwoResponse.Where(x => !x.IsValid)
+                                                .Concat(stageThreeResponse.Where(x => !x.IsValid));
+                response.Registrations = invalidRegistrations;
+                response.ValidationErrors = response.ValidationMessages;
+                return response;
             }
 
-            if (response.Registrations.Any(x => !x.IsValid))
-                response.ValidationErrors = response.ValidationMessages;
-
-            // var result = await _registrationService.SaveBulkRegistrationsAsync(response.Registrations, ukprn);
+            //var result = await _registrationService.SaveBulkRegistrationsAsync(stageTwoResponse, ukprn);
             
             return response;
         }

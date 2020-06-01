@@ -53,6 +53,23 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Model
             }
         }
 
+        public void AddErrors(int rownum, ReadingContext context, ValidationResult validationResult = null)
+        {
+            foreach(var err in validationResult.Errors)
+            {
+                var error = new ValidationError
+                {
+                    FieldName = err.PropertyName,
+                    FieldValue = err.AttemptedValue.ToString(),
+                    RowNum = rownum,
+                    RawRow = context.RawRecord,
+                    ErrorMessage = err.ErrorMessage
+                };
+
+                ValidationErrors.Add(error);
+            }
+        }
+
         public ValidationError BuildError(ReadingContext context, string message = "", ValidationResult validationResult = null)
         {
             var fieldIndex = context.CurrentIndex;

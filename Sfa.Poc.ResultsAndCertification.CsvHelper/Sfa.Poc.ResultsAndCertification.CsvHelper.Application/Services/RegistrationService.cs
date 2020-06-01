@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Data;
 using Microsoft.EntityFrameworkCore;
-using Sfa.Poc.ResultsAndCertification.CsvHelper.Models;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Model;
 using System.Threading.Tasks;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Domain.Comparer;
@@ -70,11 +69,10 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
             return await Task.Run(() => true);
         }
 
-        public async Task<BulkRegistrationResponse> ValidateRegistrationTlevelsAsync(long ukprn, IEnumerable<Registration> regdata)
+        public async Task<IEnumerable<Registration>> ValidateRegistrationTlevelsAsync(long ukprn, IEnumerable<Registration> regdata)
         {
             var aoProviderTlevels = await GetAllTLevelsByAoUkprnAsync(ukprn);
 
-            var result = new BulkRegistrationResponse();
             regdata.ToList().ForEach(x =>
             {
                 // Validation: AO not registered for the T level. 
@@ -96,15 +94,16 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
                 // Validation: Verify if valid specialisms are used.
                 var isValidSpecialisms = aoProviderTlevels.Any(t => t.ProviderUkprn == x.Ukprn &&
                                         t.PathwayLarId == x.Core &&
-                                        (string.IsNullOrWhiteSpace(x.Specialism1) || t.TlSpecialismLarIds.Contains(x.Specialism1)) &&
-                                        (string.IsNullOrWhiteSpace(x.Specialism2) || t.TlSpecialismLarIds.Contains(x.Specialism2)));
+                                        (x.Specialisms?.Count() == 0 ||
+                                        x.Specialisms.All(xs => t.TlSpecialismLarIds.Contains(xs))));
 
+                //var isValidSpecialisms = true;
                 if (!isValidSpecialisms)
                     AddValidationError(x, "Specialisms are not valid for T Level");
 
             });
 
-            return result;
+            return regdata;
         }
 
         public async Task ReadRegistrations(IList<TqRegistration> registrations)

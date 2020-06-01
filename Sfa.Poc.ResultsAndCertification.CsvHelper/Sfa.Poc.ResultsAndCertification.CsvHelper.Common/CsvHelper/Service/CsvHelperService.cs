@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Http;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Model;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -21,6 +20,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Service
     {
         private readonly IValidator<TImportModel> _validator;
         private readonly IDataParser<TModel> _dataParser;
+
         public CsvHelperService(IValidator<TImportModel> validator, IDataParser<TModel> dataParser)
         {
             _validator = validator;
@@ -37,20 +37,9 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Service
                     PrepareHeaderForMatch = (string header, int index) => header.ToLower()
                 };
 
-                //var memorystream = new MemoryStream();
-                //file.CopyTo(memorystream);
-                //using var reader = new StreamReader(memorystream);
-                //using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
-
                 using var reader = new StreamReader(file.OpenReadStream());
                 using var csv = new CsvReader(reader, config);
 
-                // ****** Option 1: Read all data at once and reject fully if any error found. ****** 
-                /* csv.Configuration.RegisterClassMap<RegistrationsMapper>();
-                var records = csv.GetRecordsAsync<Registration>();
-                return await records.ToListAsync(); */
-
-                //******  Option 2: Read every row and return consolidated error report.****** 
                 var result = new List<Registration>();
                 csv.Read();
                 csv.ReadHeader();  // TODO: header needs to be validated.
@@ -60,15 +49,15 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Service
                     //ValidationResult validationResult;
                     var reg = new Registration();
 
-                    reg.Uln = reg.Validate<long>(csv, Constants.CsvHeaders.Uln);
+                    //reg.Uln = csv.GetField<string>(Constants.CsvHeaders.Uln);
+
                     reg.FirstName = reg.Validate<string>(csv, Constants.CsvHeaders.FirstName);
                     reg.LastName = reg.Validate<string>(csv, Constants.CsvHeaders.LastName);
                     reg.DateOfBirth = reg.Validate<string>(csv, Constants.CsvHeaders.DateOfBirth);
                     reg.Ukprn = reg.Validate<int>(csv, Constants.CsvHeaders.Ukprn);
                     reg.StartDate = reg.Validate<string>(csv, Constants.CsvHeaders.StartDate);
                     reg.Core = reg.Validate<string>(csv, Constants.CsvHeaders.Core);
-                    reg.Specialism1 = reg.Validate<string>(csv, Constants.CsvHeaders.Specialism1);
-                    reg.Specialism2 = reg.Validate<string>(csv, Constants.CsvHeaders.Specialism2);
+                    //reg.Specialisms = reg.Validate<string>(csv, Constants.CsvHeaders.Specialisms);
                     reg.RowNum = csv.Context.Row;
 
                     //try
@@ -181,12 +170,13 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Service
                 var result = new List<Registration>();
                 csv.Read();
                 csv.ReadHeader();  // TODO: header needs to be validated.
+                var rownum = 0;
                 while (csv.Read())
                 {
+                    rownum++;
                     foreach (var property in properties)
                     {
                         var nameAttr = property.GetCustomAttribute<NameAttribute>();
-                        //var nameAttr = (NameAttribute)Attribute.GetCustomAttribute(property, typeof(NameAttribute));
                         property.SetValue(importModel, csv.GetField(nameAttr.Names[0]));
                     }
                     
@@ -203,12 +193,12 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Service
 
                     if (!validationResult.IsValid)
                     {
-                        importModel.BuildError(csv.Context, validationResult: validationResult);
-                        continue;
+                        importModel.AddErrors(rownum, csv.Context, validationResult: validationResult);
                     }
 
-                    var reg = _dataParser.Parse(importModel);
+                    var reg = _dataParser.Parse(importModel, rownum);
                     returnModel.Add(reg);
+                    importModel.ValidationErrors.Clear();
                 }
             }
             catch (UnauthorizedAccessException e)
