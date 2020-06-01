@@ -20,18 +20,24 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Domain.Comparer
             else if (x.GetType() != y.GetType())
                 return false;
             else
-                return x.TqRegistrationProfileId == y.TqRegistrationProfileId && x.TqProviderId == y.TqProviderId
+            {
+                var retVal = 
+                    //x.TqRegistrationProfileId == y.TqRegistrationProfileId &&
+                    x.TqProviderId == y.TqProviderId
                     && Equals(x.StartDate, y.StartDate)
                     && Equals(x.EndDate, y.EndDate)
                     && x.Status == y.Status;
+                return retVal;
+            }
         }
 
         public int GetHashCode(TqRegistrationPathway regPathway)
         {
             unchecked
             {
-                var hashCode = regPathway.TqRegistrationProfileId.GetHashCode();
-                hashCode = (hashCode * 397) ^ regPathway.TqProviderId.GetHashCode();
+                var hashCode = regPathway.TqProviderId.GetHashCode();
+                //var hashCode = regPathway.TqRegistrationProfileId.GetHashCode();
+                //hashCode = (hashCode * 397) ^ regPathway.TqProviderId.GetHashCode();
                 hashCode = (hashCode * 397) ^ regPathway.StartDate.GetHashCode();
                 hashCode = (hashCode * 397) ^ (regPathway.EndDate != null ? regPathway.EndDate.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ regPathway.Status.GetHashCode();

@@ -20,8 +20,12 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Domain.Comparer
             else if (x.GetType() != y.GetType())
                 return false;
             else
-                return x.UniqueLearnerNumber == y.UniqueLearnerNumber && string.Equals(x.Firstname, y.Firstname)
-                    && string.Equals(x.Lastname, y.Lastname) && Equals(x.DateofBirth, y.DateofBirth);
+            {
+                var retVal = x.UniqueLearnerNumber == y.UniqueLearnerNumber && string.Equals(x.Firstname, y.Firstname)
+                    && Equals(x.Lastname, y.Lastname)
+                    && Equals(x.DateofBirth, y.DateofBirth);
+                return retVal;
+            }
         }
 
         public int GetHashCode(TqRegistrationProfile reg)

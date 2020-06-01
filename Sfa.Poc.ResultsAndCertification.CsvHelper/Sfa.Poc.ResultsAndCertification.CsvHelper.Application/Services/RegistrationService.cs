@@ -25,16 +25,19 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
         private readonly IRepository<TqSpecialismRegistration> _tqSpecialismRegistrationRepository;
         private readonly IRegistrationRepository _registrationRepository;
         private readonly IRepository<TqRegistrationProfile> _tqRegistrationProfileRepository;
+        private readonly IRepository<TqRegistrationPathway> _tqRegistrationPathwayRepository;
 
         public RegistrationService(IRepository<TlPathway> pathwayRepository, ResultsAndCertificationDbContext context,
             IRepository<TqRegistration> tqRegistrationRepository, IRepository<TqSpecialismRegistration> tqSpecialismRegistrationRepository,
-            IRegistrationRepository registrationRepository, IRepository<TqRegistrationProfile> tqRegistrationProfileRepository)
+            IRegistrationRepository registrationRepository, IRepository<TqRegistrationProfile> tqRegistrationProfileRepository,
+            IRepository<TqRegistrationPathway> tqRegistrationPathwayRepository)
         {
             _pathwayRepository = pathwayRepository;
             _tqRegistrationRepository = tqRegistrationRepository;
             _tqSpecialismRegistrationRepository = tqSpecialismRegistrationRepository;
             _registrationRepository = registrationRepository;
             _tqRegistrationProfileRepository = tqRegistrationProfileRepository;
+            _tqRegistrationPathwayRepository = tqRegistrationPathwayRepository;
             ctx = context;
         }
 
@@ -298,20 +301,21 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
         public async Task CompareAndProcessRegistrations()
         {
             var seedValue = 0;
-            var entitiesToLoad = 1;
-            var ulns = new HashSet<long>();
+            var entitiesToLoad = 10000;
+            var ulns = new HashSet<int>();
             var registrations = new List<TqRegistrationProfile>();
             var dateTimeNow = DateTime.Now;
             Random random = new Random();
             for (int i = 1; i <= entitiesToLoad; i++)
             {
+                if(i <= 10000)
                 ulns.Add(seedValue + i);
 
                 var reg = new TqRegistrationProfile
                 {
                     //Id = i,
                     UniqueLearnerNumber = seedValue + i,
-                    Firstname = "Firstname " + (seedValue + i),
+                    Firstname = "Firstname " + (seedValue + "XY" + i),
                     Lastname = "Lastname " + (seedValue + i),
                     DateofBirth = DateTime.Parse("17/01/1983")
                 };
@@ -341,22 +345,53 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
             var watch = System.Diagnostics.Stopwatch.StartNew();
             watch.Start();
 
-            var existingRegistrationsFromDb = await _tqRegistrationProfileRepository
-                                                    .GetManyAsync(x => ulns.Contains(x.UniqueLearnerNumber),
-                                                                  x => x.TqRegistrationPathways)
-                                                    .ToListAsync();
+            //var tqRegistrationPathways = await _tqRegistrationPathwayRepository.GetManyAsync(p => ulns.Contains(p.TqRegistrationProfile.UniqueLearnerNumber),
+            //    p => p.TqRegistrationProfile, p => p.TqRegistrationSpecialisms, p => p.TqProvider,
+            //    p => p.TqProvider.TqAwardingOrganisation, p => p.TqProvider.TqAwardingOrganisation.TlAwardingOrganisaton).ToListAsync();
+
+            //watch.Stop();
+            //var sec = watch.ElapsedMilliseconds;
+
+            //watch.Reset();
+            //watch.Start();
+
+            var existingRegistrationsFromDb = await ctx.TqRegistrationProfile.Where(x => ulns.Contains(x.UniqueLearnerNumber))
+                .Include(x => x.TqRegistrationPathways)
+                    .ThenInclude(x => x.TqRegistrationSpecialisms)
+                .Include(x => x.TqRegistrationPathways)
+                .ThenInclude(x => x.TqProvider)
+                        .ThenInclude(x => x.TqAwardingOrganisation)
+                //.ThenInclude(x => x.TlAwardingOrganisaton)
+                .ToListAsync();
+
+
+            //watch.Stop();
+            //var sec = watch.ElapsedMilliseconds;
+
+            //var tqRegistrationProfiles = tqRegistrationPathways.SelectMany(x => x.TqRegistrationProfile, (x, prof) => new { x, prof}).ToList();
+
+            //var existingRegistrationsFromDb = await _tqRegistrationProfileRepository
+            //                                        .GetManyAsync(x => ulns.Contains(x.UniqueLearnerNumber),
+            //                                                      x => x.TqRegistrationPathways)
+            //                                        .ToListAsync();
+
+
 
             var comparer = new TqRegistrationProfileEqualityComparer();
-            var newRegistrations = registrations.Where(x => !existingRegistrationsFromDb.Any(e => e.UniqueLearnerNumber == x.UniqueLearnerNumber)).ToList();
-            var matchedRegistrations = registrations.Where(x => existingRegistrationsFromDb.Any(e => e.UniqueLearnerNumber == x.UniqueLearnerNumber)).ToList();
+            var ulnComparer = new TqRegistrationUlnEqualityComparer();
+            //var newRegistrations = registrations.Where(x => !existingRegistrationsFromDb.Any(e => e.UniqueLearnerNumber == x.UniqueLearnerNumber)).ToList();
+            //var matchedRegistrations = registrations.Where(x => existingRegistrationsFromDb.Any(e => e.UniqueLearnerNumber == x.UniqueLearnerNumber)).ToList();
+
+            var newRegistrations = registrations.Except(existingRegistrationsFromDb, ulnComparer).ToList();
+            var matchedRegistrations = registrations.Intersect(existingRegistrationsFromDb, ulnComparer).ToList();
             var sameOrDuplicateRegistrations = matchedRegistrations.Intersect(existingRegistrationsFromDb, comparer).ToList();
 
             var modifiedRegistrations = new List<TqRegistrationProfile>();
 
             if (matchedRegistrations.Count != sameOrDuplicateRegistrations.Count)
             {
-                modifiedRegistrations = matchedRegistrations.Where(r => !sameOrDuplicateRegistrations.Any(s => s.UniqueLearnerNumber == r.UniqueLearnerNumber)).ToList();
-                //modifiedRegistrations = matchedRegistrations.Except(sameOrDuplicateRegistrations, comparer).ToList();
+                //modifiedRegistrations = matchedRegistrations.Where(r => !sameOrDuplicateRegistrations.Any(s => s.UniqueLearnerNumber == r.UniqueLearnerNumber)).ToList();
+                modifiedRegistrations = matchedRegistrations.Except(sameOrDuplicateRegistrations, comparer).ToList();
 
                 //var sameOrDuplicateRegistrations = existingRegistrationsFromDb.Intersect(registrations, comparer).ToList();
                 //var modifiedRegistrations = matchedRegistrations.Except(sameOrDuplicateRegistrations, comparer).ToList();
@@ -385,6 +420,16 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
                         //pathwaysToUpdate
                         if (pathwaysToUpdate.Count > 0)
                         {
+                            //var isProviderChanged = !pathwaysToUpdate.Any(x => mr.TqRegistrationPathways.Any(r => r.TqProvider.TlProviderId == x.TqProvider.TlProviderId));
+
+                            //var isPathwayChanged = !pathwaysToUpdate.Any(x => mr.TqRegistrationPathways.Any(r => r.TqProvider.TqAwardingOrganisation.TlPathwayId == x.TqProvider.TqAwardingOrganisation.TlPathwayId));
+
+                            //if (isPathwayChanged)
+                            //{
+                            //    var isAoChanged = !pathwaysToUpdate.Any(x => mr.TqRegistrationPathways.Any(r => r.TqProvider.TqAwardingOrganisation.TlAwardingOrganisatonId == x.TqProvider.TqAwardingOrganisation.TlAwardingOrganisatonId));
+                                
+                            //}
+
                             // change existing TqRegistrationPathway record status and related TqRegistrationSpecialism records status to "Changed"
                             if (pathwaysToAdd.Count > 0)
                             {
@@ -403,7 +448,6 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
                                         pathway.ModifiedOn = DateTime.UtcNow;
                                     }
                                 }
-                                //mr.TqRegistrationPathways = pathwaysToAdd.Concat(existingPathwayRecords).ToList();
                             }
                             else
                             {
@@ -415,7 +459,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
 
                                         if (existingPathwayRecord != null && existingPathwayRecord.TqRegistrationSpecialisms.Any())
                                         {
-                                            var specialismsInDb = existingPathwayRecord.TqRegistrationSpecialisms.Where(s => s.Status == 1);
+                                            var specialismsInDb = existingPathwayRecord.TqRegistrationSpecialisms.Where(s => s.Status == 1).ToList();
 
                                             // update TqRegistrationId
                                             //mr.TqSpecialismRegistrations.ToList().ForEach(sp => sp.TqRegistrationId = reg.Id);
@@ -496,7 +540,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
             if (newRegistrations.Count > 0 || modifiedRegistrations.Count > 0)
             {
                 var registrationsToSendToDB = newRegistrations.Concat(modifiedRegistrations).ToList();
-                //await _registrationRepository.BulkInsertOrUpdateTqRegistrations(registrationsToSendToDB);
+                await _registrationRepository.BulkInsertOrUpdateTqRegistrations(registrationsToSendToDB);
             }
             watch.Stop();
             var sec = watch.ElapsedMilliseconds;
