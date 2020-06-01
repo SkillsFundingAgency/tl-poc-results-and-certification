@@ -540,7 +540,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
             if (newRegistrations.Count > 0 || modifiedRegistrations.Count > 0)
             {
                 var registrationsToSendToDB = newRegistrations.Concat(modifiedRegistrations).ToList();
-                await _registrationRepository.BulkInsertOrUpdateTqRegistrations(registrationsToSendToDB);
+                //await _registrationRepository.BulkInsertOrUpdateTqRegistrations(registrationsToSendToDB);
             }
             watch.Stop();
             var sec = watch.ElapsedMilliseconds;
