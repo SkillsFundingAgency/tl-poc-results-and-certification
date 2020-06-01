@@ -12,8 +12,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Mapper
             Map(m => m.Ukprn).Name(Constants.CsvHeaders.Ukprn);
             Map(m => m.StartDate).Name(Constants.CsvHeaders.StartDate);
             Map(m => m.Core).Name(Constants.CsvHeaders.Core);
-            Map(m => m.Specialism1).Name(Constants.CsvHeaders.Specialism1);
-            Map(m => m.Specialism2).Name(Constants.CsvHeaders.Specialism2);
+            Map(m => m.Specialisms).Name(Constants.CsvHeaders.Specialisms);
         }
     }
 }
