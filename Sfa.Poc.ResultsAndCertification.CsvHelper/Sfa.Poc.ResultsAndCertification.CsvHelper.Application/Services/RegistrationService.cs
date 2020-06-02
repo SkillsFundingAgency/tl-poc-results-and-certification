@@ -411,10 +411,9 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
                         mr.Id = reg.Id;
                         mr.TqRegistrationPathways.ToList().ForEach(p => p.TqRegistrationProfileId = reg.Id);
 
-                        var pathwayRegistrationsInDb = reg.TqRegistrationPathways.Where(s => s.Status == 1);
+                        var pathwayRegistrationsInDb = reg.TqRegistrationPathways.Where(s => s.Status == 1).ToList();
                         var pathwaysToAdd = mr.TqRegistrationPathways.Where(s => !pathwayRegistrationsInDb.Any(r => r.TqProviderId == s.TqProviderId)).ToList();
-                        
-                        var pathwaysToUpdate = pathwayRegistrationsInDb.Where(s => mr.TqRegistrationPathways.Any(r => r.TqProviderId == s.TqProviderId)).ToList();
+                        var pathwaysToUpdate = pathwaysToAdd.Count > 0 ? pathwayRegistrationsInDb : pathwayRegistrationsInDb.Where(s => mr.TqRegistrationPathways.Any(r => r.TqProviderId == s.TqProviderId)).ToList();
 
                         //pathwaysToUpdate
                         if (pathwaysToUpdate.Count > 0)
