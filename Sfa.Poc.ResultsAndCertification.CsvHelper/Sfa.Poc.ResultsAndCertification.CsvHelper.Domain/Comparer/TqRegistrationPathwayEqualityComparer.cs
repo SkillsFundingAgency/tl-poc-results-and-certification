@@ -5,11 +5,11 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Domain.Comparer
 {
     public class TqRegistrationPathwayEqualityComparer : IEqualityComparer<TqRegistrationPathway>
     {
-        private TqRegistrationSpecialismEqualityComparer _tqRegistrationSpecialismComparer;
-        public TqRegistrationPathwayEqualityComparer()
-        {
-            _tqRegistrationSpecialismComparer = new TqRegistrationSpecialismEqualityComparer();
-        }
+        //private TqRegistrationSpecialismEqualityComparer _tqRegistrationSpecialismComparer;
+        //public TqRegistrationPathwayEqualityComparer()
+        //{
+        //    _tqRegistrationSpecialismComparer = new TqRegistrationSpecialismEqualityComparer();
+        //}
 
         public bool Equals(TqRegistrationPathway x, TqRegistrationPathway y)
         {
@@ -42,10 +42,10 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Domain.Comparer
                 hashCode = (hashCode * 397) ^ (regPathway.EndDate != null ? regPathway.EndDate.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ regPathway.Status.GetHashCode();
 
-                foreach (var registrationSpecialism in regPathway.TqRegistrationSpecialisms)
-                {
-                    hashCode = (hashCode * 397) ^ _tqRegistrationSpecialismComparer.GetHashCode(registrationSpecialism);
-                }
+                //foreach (var registrationSpecialism in regPathway.TqRegistrationSpecialisms)
+                //{
+                //    hashCode = (hashCode * 397) ^ _tqRegistrationSpecialismComparer.GetHashCode(registrationSpecialism);
+                //}
                 return hashCode;
             }
         }
