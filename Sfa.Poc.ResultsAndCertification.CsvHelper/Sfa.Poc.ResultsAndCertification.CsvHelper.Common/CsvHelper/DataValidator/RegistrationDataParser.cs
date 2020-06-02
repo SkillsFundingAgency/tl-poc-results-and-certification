@@ -1,6 +1,8 @@
 ﻿using Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Helpers;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Model;
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.DataValidator
@@ -14,14 +16,17 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.DataValidat
                 if (!reg.IsValid)
                     return new Registration { ValidationErrors = new List<ValidationError>(reg.ValidationErrors) };
 
+                DateTime.TryParseExact(reg.DateOfBirth, "ddMMyyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dob);
+                DateTime.TryParseExact(reg.StartDate, "ddMMyyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime startDate);
+
                 return new Registration
                 {
-                    Uln = reg.Uln.ToLong(),
+                    Uln = int.Parse(reg.Uln),
                     FirstName = reg.FirstName,
                     LastName = reg.LastName,
-                    DateOfBirth = reg.DateOfBirth,
+                    DateOfBirth = dob,
                     Ukprn = reg.Ukprn.ToLong(),
-                    StartDate = reg.StartDate,
+                    StartDate = startDate,
                     Core = reg.Core,
                     Specialisms = reg.Specialisms.Split(',').Where(s => !string.IsNullOrEmpty(s)),
                     RowNum = rownum,

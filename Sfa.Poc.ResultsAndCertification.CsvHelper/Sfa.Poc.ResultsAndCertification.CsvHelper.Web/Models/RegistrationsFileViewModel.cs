@@ -10,7 +10,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Models
         [DataType(DataType.Upload)]
         [MaxFileSizeInMb(5, ErrorMessage = "Maximum allowed file size is 5mb")]
         [AllowedExtensions(".csv", ErrorMessage = "File extension is not valid.")] // Comma-separated extensions.
-        [MaxRecordCount(20, ErrorMessage = "Max limit on number of records are exceeded.")] // TODO: Config/param
+        [MaxRecordCount(100, ErrorMessage = "Max limit on number of records are exceeded.")] // TODO: Config/param
         public IFormFile RegistrationFile { get; set; }
     }
 }

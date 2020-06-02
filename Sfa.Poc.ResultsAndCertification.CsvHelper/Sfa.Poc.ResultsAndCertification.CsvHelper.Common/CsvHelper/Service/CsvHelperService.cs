@@ -53,9 +53,9 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Service
 
                     reg.FirstName = reg.Validate<string>(csv, Constants.CsvHeaders.FirstName);
                     reg.LastName = reg.Validate<string>(csv, Constants.CsvHeaders.LastName);
-                    reg.DateOfBirth = reg.Validate<string>(csv, Constants.CsvHeaders.DateOfBirth);
+                    //reg.DateOfBirth = reg.Validate<string>(csv, Constants.CsvHeaders.DateOfBirth);
                     reg.Ukprn = reg.Validate<int>(csv, Constants.CsvHeaders.Ukprn);
-                    reg.StartDate = reg.Validate<string>(csv, Constants.CsvHeaders.StartDate);
+                    //reg.StartDate = reg.Validate<string>(csv, Constants.CsvHeaders.StartDate);
                     reg.Core = reg.Validate<string>(csv, Constants.CsvHeaders.Core);
                     //reg.Specialisms = reg.Validate<string>(csv, Constants.CsvHeaders.Specialisms);
                     reg.RowNum = csv.Context.Row;
