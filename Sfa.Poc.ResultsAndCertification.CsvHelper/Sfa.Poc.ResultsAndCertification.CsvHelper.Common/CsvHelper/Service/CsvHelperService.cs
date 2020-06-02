@@ -181,9 +181,9 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Service
                     }
                     
                     ValidationResult validationResult;
-
                     try
                     {
+                        _validator.CascadeMode = CascadeMode.StopOnFirstFailure;
                         validationResult = await _validator.ValidateAsync(importModel);
                     }
                     catch (Exception exception)

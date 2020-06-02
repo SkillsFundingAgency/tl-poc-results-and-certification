@@ -387,8 +387,6 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
 
             var modifiedRegistrations = new List<TqRegistrationProfile>();
 
-            var toModify = matchedRegistrations.Except(sameOrDuplicateRegistrations);
-
             if (matchedRegistrations.Count != sameOrDuplicateRegistrations.Count)
             {
                 //modifiedRegistrations = matchedRegistrations.Where(r => !sameOrDuplicateRegistrations.Any(s => s.UniqueLearnerNumber == r.UniqueLearnerNumber)).ToList();

@@ -12,7 +12,13 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Helpers
 
         public static bool IsDateTimeWithFormat(this string value)
         {
-            return DateTime.TryParseExact(value, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out _);
+            return DateTime.TryParseExact(value, "ddMMyyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out _);
+        }
+
+        public static DateTime ParseStringToDateTime(this string value)
+        {
+            DateTime.TryParseExact(value, "ddMMyyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime result);
+            return result;
         }
 
         public static DateTime ToDateTime(this string value)
