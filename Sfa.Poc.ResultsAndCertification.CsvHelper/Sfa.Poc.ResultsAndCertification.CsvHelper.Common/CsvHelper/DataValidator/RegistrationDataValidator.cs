@@ -9,21 +9,23 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.DataValidat
         public RegistrationDataValidator()
         {
             RuleFor(r => r.Uln)
-                .NotEmpty()
-                    .WithErrorCode("Required")
-                    .WithMessage("Uln is mandatory.");
-
+                .Required();
+            
             RuleFor(r => r.Uln)
-                .Must(r => r.Length == 10)
-                    .WithErrorCode("Size")
-                    .WithMessage("Uln length not as expected.")
+                .LenthMustBe(10)
                 .When(r => !string.IsNullOrWhiteSpace(r.Uln));
 
-            RuleFor(r => r.Uln)
-                .Must(r => int.TryParse(r, out int result))
-                    .WithErrorCode("Type")
-                    .WithMessage("Uln is not expected type.")
-                .When(r => !string.IsNullOrWhiteSpace(r.Uln) && r.Uln.Length == 10);
+            //RuleFor(r => r.Uln)
+            //    .Must(r => r.Length == 10)
+            //        .WithErrorCode("Size")
+            //        .WithMessage("Uln length not as expected.")
+            //    .When(r => !string.IsNullOrWhiteSpace(r.Uln));
+
+            //RuleFor(r => r.Uln)
+            //    .Must(r => int.TryParse(r, out int result))
+            //        .WithErrorCode("Type")
+            //        .WithMessage("Uln is not expected type.")
+            //    .When(r => !string.IsNullOrWhiteSpace(r.Uln) && r.Uln.Length == 10);
 
             //RuleFor(r => r.FirstName)
             //    .NotEmpty()
