@@ -120,8 +120,9 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Data.Repositories
             return entities;
         }
 
-        public async Task<IList<TqRegistrationProfile>> BulkInsertOrUpdateTqRegistrations(List<TqRegistrationProfile> profileEntities, List<TqRegistrationPathway> pathwayEntities, List<TqRegistrationSpecialism> specialismEntities)
+        public async Task<bool> BulkInsertOrUpdateTqRegistrations(List<TqRegistrationProfile> profileEntities, List<TqRegistrationPathway> pathwayEntities, List<TqRegistrationSpecialism> specialismEntities)
         {
+            var result = false;
             if ((profileEntities != null && profileEntities.Count > 0) || (pathwayEntities != null && pathwayEntities.Count > 0) || (specialismEntities != null && specialismEntities.Count > 0))
             {
                 var strategy = _dbContext.Database.CreateExecutionStrategy();
@@ -170,17 +171,18 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Data.Repositories
                             }
 
                             transaction.Commit();
+                            result = true;
                         }
                         catch (Exception ex)
                         {
                             _logger.LogError(ex.Message, ex.InnerException);
                             transaction.Rollback();
-                            throw;
+                            //throw;
                         }
                     }
                 });
             }
-            return profileEntities;
+            return result;
         }
     }
 }
