@@ -1,4 +1,5 @@
 ﻿using CsvHelper.Configuration.Attributes;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -8,7 +9,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Model
     {
         [Required]
         [Name(Constants.CsvHeaders.Uln)]
-        public long Uln { get; set; }
+        public int Uln { get; set; }
 
         [Required]
         [Name(Constants.CsvHeaders.FirstName)]
@@ -20,7 +21,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Model
 
         [Required]
         [Name(Constants.CsvHeaders.DateOfBirth)]
-        public string DateOfBirth { get; set; }
+        public DateTime DateOfBirth { get; set; }
 
         [Required]
         [Name(Constants.CsvHeaders.Ukprn)]
@@ -28,7 +29,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Model
 
         [Required]
         [Name(Constants.CsvHeaders.StartDate)]
-        public string StartDate { get; set; }
+        public DateTime StartDate { get; set; }
 
         [Required]
         [Name(Constants.CsvHeaders.Core)]
@@ -37,6 +38,13 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Model
         [Required]
         [Name(Constants.CsvHeaders.Specialisms)]
         public IEnumerable<string> Specialisms { get; set; }
+
+        public int TqProviderId { get; set; }
+        public int TlProviderId { get; set; }
+        public int TqAwardingOrganisationId { get; set; }
+        public int TlAwardingOrganisatonId { get; set; }
+        public int TlPathwayId { get; set; }
+        public IEnumerable<KeyValuePair<int, string>> TlSpecialismLarIds { get; set; }
 
         public int RowNum { get; set; }
     }

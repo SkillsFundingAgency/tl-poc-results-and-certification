@@ -10,9 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Model;
 using System.Threading.Tasks;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Domain.Comparer;
-using Sfa.Poc.ResultsAndCertification.CsvHelper.Data.Repositories;
 using Microsoft.EntityFrameworkCore.Internal;
-using System.IO;
 
 namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
 {
@@ -40,7 +38,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
             ctx = context;
         }
 
-        public async Task<IEnumerable<Tlevel>> GetAllTLevelsByAoUkprnAsync(long ukprn)
+        public async Task<IEnumerable<CoreAndSpecialisms>> GetAllTLevelsByAoUkprnAsync(long ukprn)
         {
             var result = await ctx.TqProvider
                 .Include(x => x.TlProvider)
@@ -51,13 +49,17 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
                 .ThenInclude(x => x.TlSpecialisms)
                 .Include(x => x.TlProvider)
                 .Where(x => x.TqAwardingOrganisation.TlAwardingOrganisaton.UkPrn == ukprn)
-                .Select(x => new Tlevel
+                .Select(x => new CoreAndSpecialisms
                 {
                     ProviderUkprn = x.TlProvider.UkPrn,
                     TlPathwayId = x.TqAwardingOrganisation.TlPathway.Id,
                     PathwayLarId = x.TqAwardingOrganisation.TlPathway.LarId,
+                    TqProviderId = x.Id,
+                    TlProviderId = x.TlProviderId,
+                    TqAwardingOrganisationId = x.TqAwardingOrganisationId,
+                    TlAwardingOrganisatonId = x.TqAwardingOrganisation.TlAwardingOrganisatonId,
                     TlSpecialisms = x.TqAwardingOrganisation.TlPathway.TlSpecialisms.Select(s => s.Id).ToList(),
-                    TlSpecialismLarIds = x.TqAwardingOrganisation.TlPathway.TlSpecialisms.Select(s => s.LarId).ToList()
+                    TlSpecialismLarIds = x.TqAwardingOrganisation.TlPathway.TlSpecialisms.Select(s => new KeyValuePair<int, string>(s.Id, s.LarId)).ToList()
                 }).ToListAsync();
 
             return result;
@@ -79,7 +81,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
                 var isAoRegistered = aoProviderTlevels.Any(t => t.ProviderUkprn == x.Ukprn);
                 if (!isAoRegistered)
                 {
-                    AddValidationError(x, "Provider not registered for AO.");
+                    x.AddStage3Error(x.RowNum, "Provider not registered for AO.");
                     return;
                 }
 
@@ -87,7 +89,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
                 var isValidProvider = aoProviderTlevels.Any(t => t.ProviderUkprn == x.Ukprn && t.PathwayLarId == x.Core);
                 if (!isValidProvider)
                 {
-                    AddValidationError(x, "Provider not registered for T level");
+                    x.AddStage3Error(x.RowNum, "Provider not registered for T level");
                     return;
                 }
 
@@ -95,15 +97,66 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
                 var isValidSpecialisms = aoProviderTlevels.Any(t => t.ProviderUkprn == x.Ukprn &&
                                         t.PathwayLarId == x.Core &&
                                         (x.Specialisms?.Count() == 0 ||
-                                        x.Specialisms.All(xs => t.TlSpecialismLarIds.Contains(xs))));
+                                        x.Specialisms.All(xs => t.TlSpecialismLarIds.Select(splval => splval.Value).Contains(xs))));
 
                 //var isValidSpecialisms = true;
                 if (!isValidSpecialisms)
-                    AddValidationError(x, "Specialisms are not valid for T Level");
+                    x.AddStage3Error(x.RowNum, "Specialisms are not valid for T Level");
 
+                // Find a Tlevel record to assign fields. 
+                var tlevel = aoProviderTlevels.FirstOrDefault(ao => ao.PathwayLarId == x.Core && ao.ProviderUkprn == x.Ukprn);
+
+                x.TqProviderId = tlevel.TqProviderId;
+                x.TqAwardingOrganisationId = tlevel.TqAwardingOrganisationId;
+                x.TlSpecialismLarIds = tlevel.TlSpecialismLarIds;
+                x.TlAwardingOrganisatonId = tlevel.TlAwardingOrganisatonId;
+                x.TlProviderId = tlevel.TlProviderId; 
             });
 
             return regdata;
+        }
+
+        public IEnumerable<TqRegistrationProfile> TransformRegistrationModel(IList<Registration> stageTwoResponse)
+        {
+            var learnerPathways = new List<TqRegistrationProfile>();
+            stageTwoResponse.ToList().ForEach(x =>
+            {
+                learnerPathways.Add(new TqRegistrationProfile
+                {
+                    UniqueLearnerNumber = x.Uln,
+                    Firstname = x.FirstName,
+                    Lastname = x.LastName,
+                    DateofBirth = x.DateOfBirth,
+                    CreatedBy = "System",   // TODO: pass Created by in the request model.
+                    CreatedOn = DateTime.UtcNow,
+
+                    TqRegistrationPathways = new List<TqRegistrationPathway>
+                    {
+                        new TqRegistrationPathway
+                        {
+                            TqProviderId = x.TqProviderId,
+                            StartDate = x.StartDate,
+                            TqRegistrationSpecialisms = MapSpecialisms(x),
+                            TqProvider = new TqProvider
+                            {
+                                TqAwardingOrganisationId = x.TqAwardingOrganisationId, 
+                                TlProviderId = x.TlProviderId,
+                                TqAwardingOrganisation = new TqAwardingOrganisation
+                                {
+                                    TlAwardingOrganisatonId = x.TlAwardingOrganisatonId,
+                                    TlPathwayId = x.TlPathwayId,
+                                }
+                            },
+
+                            Status = 1, // Todo: Enum statues.
+                            CreatedBy = "System",   // Todo
+                            CreatedOn = DateTime.UtcNow
+                        }
+                    }
+                });;
+            });
+
+            return learnerPathways;
         }
 
         public async Task ReadRegistrations(IList<TqRegistration> registrations)
@@ -525,15 +578,19 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
             var sec = watch.ElapsedMilliseconds;
         }
 
-        private void AddValidationError(Registration reg, string message)
+        private static List<TqRegistrationSpecialism> MapSpecialisms(Registration reg)
         {
-            reg.ValidationErrors.Add(new ValidationError
+            var regSpecialisms = new List<TqRegistrationSpecialism>();
+            
+            return reg.TlSpecialismLarIds.Select(x => new TqRegistrationSpecialism
             {
-                FieldName = "NA",
-                FieldValue = "NA",
-                RawRow = message,
-                RowNum = reg.RowNum
-            });
+                StartDate = DateTime.UtcNow,
+                TlSpecialismId = x.Key,
+                Status = 1,                  // Todo: enum
+                CreatedBy = "System",        // Todo:
+                CreatedOn = DateTime.UtcNow,
+
+            }).ToList();
         }
     }
 }

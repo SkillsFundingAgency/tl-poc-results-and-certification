@@ -53,9 +53,9 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Service
 
                     reg.FirstName = reg.Validate<string>(csv, Constants.CsvHeaders.FirstName);
                     reg.LastName = reg.Validate<string>(csv, Constants.CsvHeaders.LastName);
-                    reg.DateOfBirth = reg.Validate<string>(csv, Constants.CsvHeaders.DateOfBirth);
+                    //reg.DateOfBirth = reg.Validate<string>(csv, Constants.CsvHeaders.DateOfBirth);
                     reg.Ukprn = reg.Validate<int>(csv, Constants.CsvHeaders.Ukprn);
-                    reg.StartDate = reg.Validate<string>(csv, Constants.CsvHeaders.StartDate);
+                    //reg.StartDate = reg.Validate<string>(csv, Constants.CsvHeaders.StartDate);
                     reg.Core = reg.Validate<string>(csv, Constants.CsvHeaders.Core);
                     //reg.Specialisms = reg.Validate<string>(csv, Constants.CsvHeaders.Specialisms);
                     reg.RowNum = csv.Context.Row;
@@ -160,18 +160,17 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Service
                 var config = new CsvConfiguration(CultureInfo.InvariantCulture)
                 {
                     HasHeaderRecord = true,
-                    //HeaderValidated = true,
                     PrepareHeaderForMatch = (string header, int index) => header.ToLower()
                 };
 
                 using var reader = new StreamReader(importModel.File.OpenReadStream());
                 using var csv = new CsvReader(reader, config);
                 
-                var result = new List<Registration>();
                 csv.Read();
-                csv.ReadHeader();  // TODO: header needs to be validated.
+                csv.ReadHeader();
+                csv.ValidateHeader<TImportModel>();
                 var rownum = 1;
-                while (csv.Read())
+                while (await csv.ReadAsync())
                 {
                     rownum++;
                     foreach (var property in properties)
@@ -198,7 +197,9 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Service
 
                     var reg = _dataParser.Parse(importModel, rownum);
                     returnModel.Add(reg);
-                    importModel.ValidationErrors.Clear(); // TODO review required.
+
+                    // Note: As we are using same object validationerrors need to be clear. 
+                    importModel.ValidationErrors.Clear();
                 }
             }
             catch (UnauthorizedAccessException e)

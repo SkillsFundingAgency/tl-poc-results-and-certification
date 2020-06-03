@@ -8,7 +8,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Interfaces
 {
     public interface IRegistrationService
     {
-        Task<IEnumerable<Tlevel>> GetAllTLevelsByAoUkprnAsync(long ukPrn);
+        Task<IEnumerable<CoreAndSpecialisms>> GetAllTLevelsByAoUkprnAsync(long ukPrn);
         Task<IEnumerable<Registration>> ValidateRegistrationTlevelsAsync(long ukprn, IEnumerable<Registration> regdata);
         Task<bool> SaveBulkRegistrationsAsync(IEnumerable<Registration> regdata, long ukprn);
         Task ProcessRegistrations(IList<TqRegistration> registrations);
@@ -16,5 +16,6 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Interfaces
         Task CompareRegistrations();
 
         Task CompareAndProcessRegistrations();
+        IEnumerable<TqRegistrationProfile> TransformRegistrationModel(IList<Registration> stageTwoResponse);
     }
 }
