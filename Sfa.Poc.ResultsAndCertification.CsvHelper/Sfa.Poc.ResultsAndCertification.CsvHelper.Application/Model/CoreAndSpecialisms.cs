@@ -16,7 +16,9 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Model
         public string PathwayLarId { get; set; }
         public string PathwayName { get; set; }
         public int TqProviderId { get; set; }
+        public int TlProviderId { get; set; }
         public int TqAwardingOrganisationId { get; set; }
+        public int TlAwardingOrganisatonId { get; set; }
         public IEnumerable<int> TlSpecialisms { get; set; }
         public IEnumerable<KeyValuePair<int, string>> TlSpecialismLarIds { get; set; }
     }

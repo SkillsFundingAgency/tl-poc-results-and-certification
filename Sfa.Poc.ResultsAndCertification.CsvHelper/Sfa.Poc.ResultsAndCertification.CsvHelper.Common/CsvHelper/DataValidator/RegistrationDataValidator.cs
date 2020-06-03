@@ -37,6 +37,10 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.DataValidat
             RuleFor(r => r.StartDate)
                 .Required()
                 .ValidDate();
+
+            // Core
+            RuleFor(r => r.Core)
+                .Required();
         }
     }
 }

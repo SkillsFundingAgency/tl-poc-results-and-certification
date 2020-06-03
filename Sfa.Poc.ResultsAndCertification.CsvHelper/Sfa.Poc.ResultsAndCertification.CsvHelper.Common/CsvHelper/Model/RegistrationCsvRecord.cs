@@ -1,9 +1,6 @@
 ﻿using CsvHelper.Configuration.Attributes;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text;
 
 namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Model
 {
@@ -49,6 +46,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Model
         [Name(Constants.CsvHeaders.Specialisms)]
         public string Specialisms { get; set; }
 
+        [Ignore]
         public int RowNum { get; set; }
     }
 }

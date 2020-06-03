@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Interfaces;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Model;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Service;
-using Sfa.Poc.ResultsAndCertification.CsvHelper.Domain.Models;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Models;
 
 namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Controllers

@@ -40,7 +40,10 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Model
         public IEnumerable<string> Specialisms { get; set; }
 
         public int TqProviderId { get; set; }
+        public int TlProviderId { get; set; }
         public int TqAwardingOrganisationId { get; set; }
+        public int TlAwardingOrganisatonId { get; set; }
+        public int TlPathwayId { get; set; }
         public IEnumerable<KeyValuePair<int, string>> TlSpecialismLarIds { get; set; }
 
         public int RowNum { get; set; }
