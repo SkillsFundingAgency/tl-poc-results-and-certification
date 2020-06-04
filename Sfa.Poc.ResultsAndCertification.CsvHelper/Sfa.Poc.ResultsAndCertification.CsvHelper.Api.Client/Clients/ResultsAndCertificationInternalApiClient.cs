@@ -109,8 +109,6 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Client.Clients
             return new StringContent(json, Encoding.UTF8, "application/json");
         }
 
-
-
         private HttpContent CreateHttpContent<T>(T content, string contentType)
         {
             var json = JsonConvert.SerializeObject(content, MicrosoftDateFormatSettings);

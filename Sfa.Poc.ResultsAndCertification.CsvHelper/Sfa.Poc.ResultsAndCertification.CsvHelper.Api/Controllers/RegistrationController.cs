@@ -59,7 +59,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Controllers
 
                     // We are here when unexpected error while reading file, so filedirty is set(above) and add if any half-way row-levels errors(below)
                     // Todo: force test is required or unit-test must check this. 
-                    response.Registrations = validationResponse.Where(x => !x.IsValid);
+                    response.Registrations = validationResponse.Where(x => !x.IsValid && !x.IsFileReadDirty);
                     response.ValidationErrors.AddRange(response.ValidationMessages);
 
                     return response;

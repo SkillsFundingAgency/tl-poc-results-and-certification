@@ -7,6 +7,12 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Model
 {
     public class Registration: BaseModel
     {
+        public Registration()
+        {
+            Specialisms = new List<string>();
+            TlSpecialismLarIds = new List<KeyValuePair<int, string>>();
+        }
+
         [Required]
         [Name(Constants.CsvHeaders.Uln)]
         public int Uln { get; set; }

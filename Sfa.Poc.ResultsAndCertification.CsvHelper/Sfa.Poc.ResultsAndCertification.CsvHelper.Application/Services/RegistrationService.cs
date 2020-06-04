@@ -76,6 +76,9 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
         {
             var aoProviderTlevels = await GetAllTLevelsByAoUkprnAsync(ukprn);
 
+            // Uln Duplicate
+            // Todo: 
+
             regdata.ToList().ForEach(x =>
             {
                 // Validation: AO not registered for the T level. 
@@ -90,33 +93,60 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
                 var isValidProvider = aoProviderTlevels.Any(t => t.ProviderUkprn == x.Ukprn && t.PathwayLarId == x.Core);
                 if (!isValidProvider)
                 {
-                    x.AddStage3Error(x.RowNum, "Provider not registered for T level");
+                    x.AddStage3Error(x.RowNum, "Core is not registered with Provider.");
                     return;
                 }
 
-                // Validation: Verify if valid specialisms are used.
-                var isValidSpecialisms = aoProviderTlevels.Any(t => t.ProviderUkprn == x.Ukprn &&
-                                        t.PathwayLarId == x.Core &&
-                                        (x.Specialisms?.Count() == 0 ||
-                                        x.Specialisms.All(xs => t.TlSpecialismLarIds.Select(splval => splval.Value).Contains(xs))));
+                //// Validation: Verify if valid specialisms are used.
+                //var isValidSpecialisms = aoProviderTlevels.Any(t => t.ProviderUkprn == x.Ukprn &&
+                //                        t.PathwayLarId == x.Core &&
+                //                        (x.Specialisms?.Count() == 0 ||
+                //                        x.Specialisms.All(xs => t.TlSpecialismLarIds.Select(splval => splval.Value).Contains(xs))));
 
-                //var isValidSpecialisms = true;
-                if (!isValidSpecialisms)
-                    x.AddStage3Error(x.RowNum, "Specialisms are not valid for T Level");
+                //if (!isValidSpecialisms)
+                //{
+                //    x.AddStage3Error(x.RowNum, "Specialisms are not valid for T Level");
+                //    return;
+                //}
 
                 // Find a Tlevel record to assign fields. 
-                var tlevel = aoProviderTlevels.FirstOrDefault(ao => ao.PathwayLarId == x.Core && ao.ProviderUkprn == x.Ukprn);
+                var core = aoProviderTlevels.FirstOrDefault(ao => ao.PathwayLarId == x.Core && ao.ProviderUkprn == x.Ukprn);
 
-                if (tlevel != null)
+                // New subset req.(Gurmukh)
+                if (x.Specialisms.Count() > 0)
                 {
-                    x.TqProviderId = tlevel.TqProviderId;
-                    x.TqAwardingOrganisationId = tlevel.TqAwardingOrganisationId;
-                    x.TlSpecialismLarIds = tlevel.TlSpecialismLarIds;
-                    x.TlAwardingOrganisatonId = tlevel.TlAwardingOrganisatonId;
-                    x.TlProviderId = tlevel.TlProviderId;
+                    var coreSpecialisms = core.TlSpecialismLarIds.Select(x => x.Value);
+                    var invalidSpecialisms = x.Specialisms.Except(coreSpecialisms);
 
+                    if (invalidSpecialisms.Count() > 0)
+                    {
+                        if (x.Specialisms.Count() == invalidSpecialisms.Count()) // i.e. all are invalid
+                        {
+                            x.AddStage3Error(x.RowNum, "Specialism not valid with core.");
+                            return;
+                        }
+
+                        // partly invalid
+                        var commaSpecialisms = string.Join(",", invalidSpecialisms);
+                        x.AddStage3Error(x.RowNum, $"Incorrect rules of combination for Specialisms: {commaSpecialisms}" );
+                        return;
+                    }
                 }
-                // Todo: else ?
+                
+                if (core != null)
+                {
+                    x.TqProviderId = core.TqProviderId;
+                    x.TqAwardingOrganisationId = core.TqAwardingOrganisationId;
+                    x.TlSpecialismLarIds = core.TlSpecialismLarIds;
+                    x.TlAwardingOrganisatonId = core.TlAwardingOrganisatonId;
+                    x.TlProviderId = core.TlProviderId;
+                }
+                else
+                {
+                    // Todo: log and proceed.
+                    x.AddStage3Error(x.RowNum, $"Core not found in the system. Core: {x.Core}, Ukprn: {x.Ukprn}");
+                    return;
+                }
             });
 
             return regdata;

@@ -47,13 +47,13 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Controllers
                 return View("Upload", model);
             }
 
-            //var results = await _internalApiClient.ProcessBulkRegistrationsAsync(model.RegistrationFile);
-            var results = await _internalApiClient.ProcessBulkRegistrationsAsync1(new BulkRegistrationRequest 
-            { 
-                performedBy = "Test User",
-                Ukprn = 10009696,
-                RegistrationFile = model.RegistrationFile
-            });
+            var results = await _internalApiClient.ProcessBulkRegistrationsAsync(model.RegistrationFile);
+            //var results = await _internalApiClient.ProcessBulkRegistrationsAsync1(new BulkRegistrationRequest
+            //{
+            //    performedBy = "Test User",
+            //    Ukprn = 10009696,
+            //    RegistrationFile = model.RegistrationFile
+            //});
 
             watch.Stop();
 
