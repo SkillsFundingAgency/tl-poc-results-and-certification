@@ -13,8 +13,8 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Models
         }
 
         public IEnumerable<Registration> Registrations { get; set; }
-        public IEnumerable<ValidationError> ValidationErrors { get; set; }
-        public IEnumerable<ValidationError> ValidationMessages
+        public List<ValidationError> ValidationErrors { get; set; }
+        public List<ValidationError> ValidationMessages
         {
             get
             {

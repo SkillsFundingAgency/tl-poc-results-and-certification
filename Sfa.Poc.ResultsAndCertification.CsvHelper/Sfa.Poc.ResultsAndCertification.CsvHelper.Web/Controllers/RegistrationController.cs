@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Client.Interfaces;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Model;
+using Sfa.Poc.ResultsAndCertification.CsvHelper.Models;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Models;
 
 namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Controllers
@@ -46,7 +47,13 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Controllers
                 return View("Upload", model);
             }
 
-            var results = await _internalApiClient.ProcessBulkRegistrationsAsync(model.RegistrationFile);
+            //var results = await _internalApiClient.ProcessBulkRegistrationsAsync(model.RegistrationFile);
+            var results = await _internalApiClient.ProcessBulkRegistrationsAsync1(new BulkRegistrationRequest 
+            { 
+                performedBy = "Test User",
+                Ukprn = 10009696,
+                RegistrationFile = model.RegistrationFile
+            });
 
             watch.Stop();
 

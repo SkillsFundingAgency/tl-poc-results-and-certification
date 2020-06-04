@@ -22,10 +22,24 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Controllers
         }
 
         [HttpPost]
+        [Route("bulk-upload1", Name = "BulkUpload1")]
+        public async Task<BulkRegistrationResponse> ProcessBulkRegistrationsAsync(BulkRegistrationRequest request)
+        {
+            long ukprn = 10009696; /*NCFE*/
+            var performedBy = "system@digtal.com";  // Todo: pass-through model or azure-blob
+
+            var response = new BulkRegistrationResponse();
+            return response;
+        }
+
+
+        [HttpPost]
         [Route("bulk-upload", Name = "BulkUpload")]
         public async Task<BulkRegistrationResponse> ProcessBulkRegistrationsAsync()
         {
             long ukprn = 10009696; /*NCFE*/
+            var performedBy = "system@digtal.com";  // Todo: pass-through model or azure-blob
+
             var response = new BulkRegistrationResponse();
 
             //await _registrationService.CompareRegistrations();
@@ -35,6 +49,21 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Controllers
             {
                 // Stage 2 validation
                 var validationResponse = await _csvParserService.ValidateAndParseFileAsync(new RegistrationCsvRecord { File = file });
+
+                if (validationResponse.Any(x => x.IsFileReadDirty))
+                {
+                    response.ValidationErrors = validationResponse
+                                                    .Where(x => x.IsFileReadDirty)
+                                                    .Select(x => x.ValidationErrors)
+                                                    .FirstOrDefault().ToList();
+
+                    // We are here when unexpected error while reading file, so filedirty is set(above) and add if any half-way row-levels errors(below)
+                    // Todo: force test is required or unit-test must check this. 
+                    response.Registrations = validationResponse.Where(x => !x.IsValid);
+                    response.ValidationErrors.AddRange(response.ValidationMessages);
+
+                    return response;
+                }
 
                 // Stage 3 validation.
                 await _registrationService.ValidateRegistrationTlevelsAsync(ukprn, validationResponse.Where(x => x.IsValid));
@@ -47,7 +76,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Controllers
                     response.ValidationErrors = response.ValidationMessages; // copy
 
                     // Step: Map data to DB model type.
-                    var tqRegistrations = _registrationService.TransformRegistrationModel(validationResponse.Where(x => x.IsValid).ToList());
+                    var tqRegistrations = _registrationService.TransformRegistrationModel(validationResponse.Where(x => x.IsValid).ToList(), performedBy);
 
                     // Step: Process DB operation
                     //var result = await _registrationService.SaveBulkRegistrationsAsync(tqRegistrations, ukprn);

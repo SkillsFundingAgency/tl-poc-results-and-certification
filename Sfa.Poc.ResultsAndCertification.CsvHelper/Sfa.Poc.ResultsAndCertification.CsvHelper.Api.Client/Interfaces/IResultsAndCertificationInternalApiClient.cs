@@ -9,5 +9,8 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Client.Interfaces
         Task<RegisteredTqProviderDetails> GetRegisteredTqProviderInformation(int tqProviderId);
 
         Task<BulkRegistrationResponse> ProcessBulkRegistrationsAsync(IFormFile registrationFile);
+
+        Task<BulkRegistrationResponse> ProcessBulkRegistrationsAsync(BulkRegistrationRequest request);
+        Task<BulkRegistrationResponse> ProcessBulkRegistrationsAsync1(BulkRegistrationRequest request);
     }
 }

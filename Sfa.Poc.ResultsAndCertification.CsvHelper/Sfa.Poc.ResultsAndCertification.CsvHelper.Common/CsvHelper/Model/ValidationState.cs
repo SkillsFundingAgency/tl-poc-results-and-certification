@@ -1,4 +1,5 @@
 ﻿using CsvHelper;
+using CsvHelper.Configuration.Attributes;
 using FluentValidation.Results;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,9 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Model
 
         public IList<ValidationError> ValidationErrors;
         public bool IsValid { get { return ValidationErrors.Count() == 0; } }
+        
+        [Ignore]
+        public bool IsFileReadDirty { get; set; }
 
         internal T Validate<T>(CsvReader csv, string fieldName)
         {

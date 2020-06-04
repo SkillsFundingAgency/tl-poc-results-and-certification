@@ -106,17 +106,21 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
                 // Find a Tlevel record to assign fields. 
                 var tlevel = aoProviderTlevels.FirstOrDefault(ao => ao.PathwayLarId == x.Core && ao.ProviderUkprn == x.Ukprn);
 
-                x.TqProviderId = tlevel.TqProviderId;
-                x.TqAwardingOrganisationId = tlevel.TqAwardingOrganisationId;
-                x.TlSpecialismLarIds = tlevel.TlSpecialismLarIds;
-                x.TlAwardingOrganisatonId = tlevel.TlAwardingOrganisatonId;
-                x.TlProviderId = tlevel.TlProviderId; 
+                if (tlevel != null)
+                {
+                    x.TqProviderId = tlevel.TqProviderId;
+                    x.TqAwardingOrganisationId = tlevel.TqAwardingOrganisationId;
+                    x.TlSpecialismLarIds = tlevel.TlSpecialismLarIds;
+                    x.TlAwardingOrganisatonId = tlevel.TlAwardingOrganisatonId;
+                    x.TlProviderId = tlevel.TlProviderId;
+
+                }
             });
 
             return regdata;
         }
 
-        public IEnumerable<TqRegistrationProfile> TransformRegistrationModel(IList<Registration> stageTwoResponse)
+        public IEnumerable<TqRegistrationProfile> TransformRegistrationModel(IList<Registration> stageTwoResponse, string performedBy)
         {
             var learnerPathways = new List<TqRegistrationProfile>();
             stageTwoResponse.ToList().ForEach(x =>
@@ -127,7 +131,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
                     Firstname = x.FirstName,
                     Lastname = x.LastName,
                     DateofBirth = x.DateOfBirth,
-                    CreatedBy = "System",   // TODO: pass Created by in the request model.
+                    CreatedBy = performedBy,
                     CreatedOn = DateTime.UtcNow,
 
                     TqRegistrationPathways = new List<TqRegistrationPathway>
@@ -136,7 +140,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
                         {
                             TqProviderId = x.TqProviderId,
                             StartDate = x.StartDate,
-                            TqRegistrationSpecialisms = MapSpecialisms(x),
+                            TqRegistrationSpecialisms = MapSpecialisms(x, performedBy),
                             TqProvider = new TqProvider
                             {
                                 TqAwardingOrganisationId = x.TqAwardingOrganisationId, 
@@ -149,7 +153,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
                             },
 
                             Status = 1, // Todo: Enum statues.
-                            CreatedBy = "System",   // Todo
+                            CreatedBy = performedBy,
                             CreatedOn = DateTime.UtcNow
                         }
                     }
@@ -588,7 +592,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
             var sec = watch.ElapsedMilliseconds;
         }
 
-        private static List<TqRegistrationSpecialism> MapSpecialisms(Registration reg)
+        private static List<TqRegistrationSpecialism> MapSpecialisms(Registration reg, string performedBy)
         {
             var regSpecialisms = new List<TqRegistrationSpecialism>();
             
@@ -597,7 +601,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
                 StartDate = DateTime.UtcNow,
                 TlSpecialismId = x.Key,
                 Status = 1,                  // Todo: enum
-                CreatedBy = "System",        // Todo:
+                CreatedBy = performedBy,
                 CreatedOn = DateTime.UtcNow,
 
             }).ToList();

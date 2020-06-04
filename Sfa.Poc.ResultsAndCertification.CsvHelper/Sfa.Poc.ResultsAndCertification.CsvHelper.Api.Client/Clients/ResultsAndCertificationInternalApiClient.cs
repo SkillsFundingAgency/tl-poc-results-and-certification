@@ -33,6 +33,35 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Client.Clients
             return response;
         }
 
+        public async Task<BulkRegistrationResponse> ProcessBulkRegistrationsAsync(BulkRegistrationRequest request)
+        {
+            var requestUri = $"/api/registration/bulk-upload1";
+            var response = await PostAsync<BulkRegistrationRequest, BulkRegistrationResponse>(requestUri, request);
+            return response;
+        }
+
+
+        public async Task<BulkRegistrationResponse> ProcessBulkRegistrationsAsync1(BulkRegistrationRequest request)
+        {
+            var requestUri = $"/api/registration/bulk-upload1";
+
+            using var content = new MultipartFormDataContent();
+            content.Add(new StreamContent(request.RegistrationFile.OpenReadStream())
+            {
+                Headers =
+                {
+                    ContentLength = request.RegistrationFile.Length,
+                    ContentType = new MediaTypeHeaderValue(request.RegistrationFile.ContentType)
+                }
+            }, "Attachment", "FileImport");
+
+            var response = await _httpClient.PostAsync(requestUri, content);
+            response.EnsureSuccessStatusCode();
+
+            return JsonConvert.DeserializeObject<BulkRegistrationResponse>(await response.Content.ReadAsStringAsync());
+        }
+
+
         public async Task<BulkRegistrationResponse> ProcessBulkRegistrationsAsync(IFormFile registrationFile)
         {
             var requestUri = $"/api/registration/bulk-upload";
@@ -67,16 +96,20 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Client.Clients
             return data;
         }
 
-        private async Task<TResponse> PostAsync<TRequest, TResponse>(string requestUri, TRequest content, string contentType)
+        private async Task<TResponse> PostAsync<TRequest, TResponse>(string requestUri, TRequest content)
         {
-            var httpContent = CreateHttpContent<TRequest>(content, contentType);
-
-            var response = await _httpClient.PostAsync(requestUri, httpContent);
-            
+            //await SetBearerToken();
+            var response = await _httpClient.PostAsync(requestUri, CreateHttpContent<TRequest>(content));
             response.EnsureSuccessStatusCode();
-            
             return JsonConvert.DeserializeObject<TResponse>(await response.Content.ReadAsStringAsync());
         }
+        private HttpContent CreateHttpContent<T>(T content)
+        {
+            var json = JsonConvert.SerializeObject(content, MicrosoftDateFormatSettings);
+            return new StringContent(json, Encoding.UTF8, "application/json");
+        }
+
+
 
         private HttpContent CreateHttpContent<T>(T content, string contentType)
         {

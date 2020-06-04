@@ -4,6 +4,7 @@ using CsvHelper.Configuration.Attributes;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
+using Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.DataValidator;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Model;
 using System;
 using System.Collections.Generic;
@@ -165,20 +166,22 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Service
 
                 using var reader = new StreamReader(importModel.File.OpenReadStream());
                 using var csv = new CsvReader(reader, config);
-                
+
                 csv.Read();
-                csv.ReadHeader();
-                csv.ValidateHeader<TImportModel>();
+                ValidateHeader(csv);
                 var rownum = 1;
                 while (await csv.ReadAsync())
                 {
                     rownum++;
+                    //if (rownum == 10)
+                    //    throw new Exception("Hello world");
+
                     foreach (var property in properties)
                     {
                         var nameAttr = property.GetCustomAttribute<NameAttribute>();
                         property.SetValue(importModel, csv.GetField(nameAttr.Names[0]));
                     }
-                    
+
                     ValidationResult validationResult;
                     try
                     {
@@ -204,17 +207,42 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Service
             }
             catch (UnauthorizedAccessException e)
             {
-                throw new Exception(e.Message);
+                CreateAndLogErrorObject(returnModel, e, ValidationMessages.UnAuthorizedFileAccess);
+            }
+            catch (CsvHeaderNotFoundException e)
+            {
+                CreateAndLogErrorObject(returnModel, e, ValidationMessages.FileHeaderNotFound);
             }
             catch (CsvHelperException e)
             {
-                throw new Exception(e.Message);
+                CreateAndLogErrorObject(returnModel, e, ValidationMessages.UnableToReadCsvData);
             }
             catch (Exception e)
             {
-                throw new Exception(e.Message);
+                CreateAndLogErrorObject(returnModel, e, ValidationMessages.UnexpectedError);
             }
+            
             return returnModel;
+        }
+
+        private void CreateAndLogErrorObject(List<TModel> returnModel, Exception ex, string customErrorMessage)
+        {
+            // Todo: Log the the full error details.
+            var reg = _dataParser.GetErrorObjct(customErrorMessage);
+            returnModel.Add(reg);
+        }
+
+        private static void ValidateHeader(CsvReader csv)
+        {
+            try
+            {
+                csv.ReadHeader();
+                csv.ValidateHeader<TImportModel>();
+            }
+            catch(Exception ex) 
+            {
+                throw new CsvHeaderNotFoundException(ex);
+            }
         }
     }
 }

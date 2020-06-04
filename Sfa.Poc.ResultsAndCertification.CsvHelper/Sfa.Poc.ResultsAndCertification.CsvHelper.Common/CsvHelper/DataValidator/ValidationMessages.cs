@@ -8,5 +8,9 @@
         public const string MustBeValidDate = "{0} should be a valid date in DDMMYYYY format.";
         public const string DateNotinFuture = "{0} should be not be a future date.";
 
+        public const string UnAuthorizedFileAccess = "File unauthorized to read.";
+        public const string FileHeaderNotFound = "File header is not valid.";
+        public const string UnableToReadCsvData = "Unable to interpret content.";  // Todo: validate these.
+        public const string UnexpectedError = "Unexpected error while reading file content.";
     }
 }
