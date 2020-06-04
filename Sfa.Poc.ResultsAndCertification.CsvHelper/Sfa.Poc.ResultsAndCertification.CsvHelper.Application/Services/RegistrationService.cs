@@ -77,9 +77,20 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
             var aoProviderTlevels = await GetAllTLevelsByAoUkprnAsync(ukprn);
 
             // Uln Duplicate
-            // Todo: 
+            var duplicateRegistrations = regdata
+                .GroupBy(x => x.Uln)
+               .Where(g => g.Count() > 1)
+               .Select(y => y)
+               .ToList();
 
-            regdata.ToList().ForEach(x =>
+            duplicateRegistrations.ForEach(x =>
+            {
+                x.ToList().ForEach(s => s.AddStage3Error(s.RowNum, "Uln duplicated"));
+            });
+
+            // Below are other than duplicated
+            regdata.Where(x => x.IsValid)
+                .ToList().ForEach(x =>
             {
                 // Validation: AO not registered for the T level. 
                 var isAoRegistered = aoProviderTlevels.Any(t => t.ProviderUkprn == x.Ukprn);
