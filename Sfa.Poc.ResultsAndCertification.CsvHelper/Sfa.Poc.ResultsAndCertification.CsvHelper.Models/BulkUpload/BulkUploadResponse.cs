@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Models.BulkUpload
 {
@@ -12,6 +13,8 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Models.BulkUpload
         public bool IsSuccess { get; set; }
         public BulkUploadStats BulkUploadStats { get; set; }
         public List<BulkUploadError> BulkUploadErrors { get; set; }
+
+        public bool HasAnyErrors { get { return BulkUploadErrors.Any(); } }
     }
 
     public class BulkUploadStats

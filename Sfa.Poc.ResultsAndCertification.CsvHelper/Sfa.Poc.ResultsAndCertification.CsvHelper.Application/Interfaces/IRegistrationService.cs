@@ -1,6 +1,7 @@
 ﻿using Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Model;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Model;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Domain.Models;
+using Sfa.Poc.ResultsAndCertification.CsvHelper.Models.BulkUpload;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -14,8 +15,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Interfaces
         Task ProcessRegistrations(IList<TqRegistration> registrations);
         Task ReadRegistrations(IList<TqRegistration> registrations);
         Task CompareRegistrations();
-
-        Task CompareAndProcessRegistrations();
+        Task<BulkUploadResponse> CompareAndProcessRegistrations();
         IEnumerable<TqRegistrationProfile> TransformRegistrationModel(IList<Registration> stageTwoResponse);
     }
 }

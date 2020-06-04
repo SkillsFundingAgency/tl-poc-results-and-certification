@@ -111,7 +111,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
                 x.TqAwardingOrganisationId = tlevel.TqAwardingOrganisationId;
                 x.TlSpecialismLarIds = tlevel.TlSpecialismLarIds;
                 x.TlAwardingOrganisatonId = tlevel.TlAwardingOrganisatonId;
-                x.TlProviderId = tlevel.TlProviderId; 
+                x.TlProviderId = tlevel.TlProviderId;
             });
 
             return regdata;
@@ -140,7 +140,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
                             TqRegistrationSpecialisms = MapSpecialisms(x),
                             TqProvider = new TqProvider
                             {
-                                TqAwardingOrganisationId = x.TqAwardingOrganisationId, 
+                                TqAwardingOrganisationId = x.TqAwardingOrganisationId,
                                 TlProviderId = x.TlProviderId,
                                 TqAwardingOrganisation = new TqAwardingOrganisation
                                 {
@@ -154,7 +154,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
                             CreatedOn = DateTime.UtcNow
                         }
                     }
-                });;
+                }); ;
             });
 
             return learnerPathways;
@@ -351,7 +351,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
         }
 
 
-        public async Task CompareAndProcessRegistrations()
+        public async Task<BulkUploadResponse> CompareAndProcessRegistrations()
         {
             var result = new BulkUploadResponse();
             var seedValue = 0;
@@ -424,7 +424,6 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
             var newRegistrations = registrations.Except(existingRegistrationsFromDb, ulnComparer).ToList();
             var matchedRegistrations = registrations.Intersect(existingRegistrationsFromDb, ulnComparer).ToList();
             var sameOrDuplicateRegistrations = matchedRegistrations.Intersect(existingRegistrationsFromDb, comparer).ToList();
-            var hasValidationErrors = false;
 
             if (matchedRegistrations.Count != sameOrDuplicateRegistrations.Count)
             {
@@ -469,11 +468,10 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
                                         FieldValue = modifiedRegistration.UniqueLearnerNumber.ToString(),
                                         ErrorMessage = "There is active registration with another Awarding Organisation"
                                     });
-                                    hasValidationErrors = true;
                                 }
                             }
 
-                            if (!hasValidationErrors)
+                            if (!result.HasAnyErrors)
                             {
                                 // change existing TqRegistrationPathway record status and related TqRegistrationSpecialism records status to "Changed"
                                 if (pathwaysToAdd.Count > 0)
@@ -481,14 +479,14 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
                                     pathwaysToUpdate.ForEach(pathwayToUpdate =>
                                     {
                                         pathwayToUpdate.Status = 2; // update status to changed
-                                    pathwayToUpdate.EndDate = DateTime.UtcNow;
+                                        pathwayToUpdate.EndDate = DateTime.UtcNow;
                                         pathwayToUpdate.ModifiedBy = "LoggedIn User";
                                         pathwayToUpdate.ModifiedOn = DateTime.UtcNow;
 
                                         pathwayToUpdate.TqRegistrationSpecialisms.Where(s => s.Status == 1).ToList().ForEach(specialismToUpdate =>
                                         {
                                             specialismToUpdate.Status = 2; // update status to changed
-                                        specialismToUpdate.EndDate = DateTime.UtcNow;
+                                            specialismToUpdate.EndDate = DateTime.UtcNow;
                                             specialismToUpdate.ModifiedBy = "LoggedIn User";
                                             specialismToUpdate.ModifiedOn = DateTime.UtcNow;
                                         });
@@ -504,22 +502,22 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
                                         {
                                             var existingSpecialisms = existingPathwayRecord.TqRegistrationSpecialisms.Where(s => s.Status == 1).ToList();
 
-                                        //1,1 - 2,1
-                                        //3,1 2,1 - 1,1 2,1
-                                        //3,1 4,1 - 1,1 2,1
-                                        //3,1 4,1 - 1,1 2,1 4,1
+                                            //1,1 - 2,1
+                                            //3,1 2,1 - 1,1 2,1
+                                            //3,1 4,1 - 1,1 2,1
+                                            //3,1 4,1 - 1,1 2,1 4,1
 
-                                        // below commented line using EqualityComprarer
-                                        //var specialismsToAdd = mr.TqSpecialismRegistrations.Except(specialismsInDb, specialismComparer).ToList();
-                                        //var specialismsToUpdate = specialismsInDb.Except(mr.TqSpecialismRegistrations, specialismComparer).ToList();
+                                            // below commented line using EqualityComprarer
+                                            //var specialismsToAdd = mr.TqSpecialismRegistrations.Except(specialismsInDb, specialismComparer).ToList();
+                                            //var specialismsToUpdate = specialismsInDb.Except(mr.TqSpecialismRegistrations, specialismComparer).ToList();
 
-                                        var specialismsToAdd = importPathwayRecord.TqRegistrationSpecialisms.Where(s => !existingSpecialisms.Any(r => r.TlSpecialismId == s.TlSpecialismId)).ToList();
+                                            var specialismsToAdd = importPathwayRecord.TqRegistrationSpecialisms.Where(s => !existingSpecialisms.Any(r => r.TlSpecialismId == s.TlSpecialismId)).ToList();
                                             var specialismsToUpdate = existingSpecialisms.Where(s => !importPathwayRecord.TqRegistrationSpecialisms.Any(r => r.TlSpecialismId == s.TlSpecialismId)).ToList();
 
                                             specialismsToUpdate.ForEach(s =>
                                             {
                                                 s.Status = 2; // change the status to inactive or withdrawn
-                                            s.EndDate = DateTime.UtcNow;
+                                                s.EndDate = DateTime.UtcNow;
                                                 s.ModifiedBy = "LoggedIn User";
                                                 s.ModifiedOn = DateTime.UtcNow;
                                             });
@@ -559,7 +557,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
                             }
                         }
 
-                        if (!hasValidationErrors)
+                        if (!result.HasAnyErrors)
                         {
                             if (hasTqRegistrationProfileRecordChanged && hasBothPathwayAndSpecialismsRecordsChanged)
                             {
@@ -589,7 +587,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
                 });
             }
 
-            if (!hasValidationErrors && (newRegistrations.Count > 0 || modifiedRegistrations.Count > 0))
+            if (!result.HasAnyErrors && (newRegistrations.Count > 0 || modifiedRegistrations.Count > 0))
             {
                 var registrationsToSendToDB = newRegistrations.Concat(modifiedRegistrations.Except(modifiedRegistrationsToIgnore, ulnComparer)).ToList();
                 //result.IsSuccess = await _registrationRepository.BulkInsertOrUpdateTqRegistrations(registrationsToSendToDB, modifiedPathwayRecords, modifiedSpecialismRecords);
@@ -603,12 +601,14 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
 
             watch.Stop();
             var sec = watch.ElapsedMilliseconds;
+
+            return result;
         }
 
         private static List<TqRegistrationSpecialism> MapSpecialisms(Registration reg)
         {
             var regSpecialisms = new List<TqRegistrationSpecialism>();
-            
+
             return reg.TlSpecialismLarIds.Select(x => new TqRegistrationSpecialism
             {
                 StartDate = DateTime.UtcNow,
