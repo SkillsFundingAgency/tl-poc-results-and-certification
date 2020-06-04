@@ -5,6 +5,8 @@ using Sfa.Poc.ResultsAndCertification.CsvHelper.Data.Interfaces;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Domain.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Data.Repositories
@@ -116,6 +118,71 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Data.Repositories
                 });
             }
             return entities;
+        }
+
+        public async Task<bool> BulkInsertOrUpdateTqRegistrations(List<TqRegistrationProfile> profileEntities, List<TqRegistrationPathway> pathwayEntities, List<TqRegistrationSpecialism> specialismEntities)
+        {
+            var result = false;
+            if ((profileEntities != null && profileEntities.Count > 0) || (pathwayEntities != null && pathwayEntities.Count > 0) || (specialismEntities != null && specialismEntities.Count > 0))
+            {
+                var strategy = _dbContext.Database.CreateExecutionStrategy();
+                await strategy.ExecuteAsync(async () =>
+                {
+                    using (var transaction = await _dbContext.Database.BeginTransactionAsync())
+                    {
+                        try
+                        {
+                            var bulkConfig = new BulkConfig() { UseTempDB = true, PreserveInsertOrder = true, SetOutputIdentity = true, BatchSize = 10000, BulkCopyTimeout = 0 };
+                            var pathwayRegistrations = pathwayEntities ?? new List<TqRegistrationPathway>();
+
+                            if (profileEntities != null && profileEntities.Count > 0)
+                            {
+                                await _dbContext.BulkInsertOrUpdateAsync(profileEntities, bulkConfig);
+
+                                profileEntities.ToList().ForEach(profile =>
+                                {
+                                    profile.TqRegistrationPathways.ToList().ForEach(pathway =>
+                                    {
+                                        pathway.TqRegistrationProfileId = profile.Id;
+                                        pathwayRegistrations.Add(pathway);
+                                    });
+                                });
+                            }
+
+                            var specialismRegistrations = specialismEntities ?? new List<TqRegistrationSpecialism>();
+
+                            if (pathwayRegistrations.Count > 0)
+                            {
+                                await _dbContext.BulkInsertOrUpdateAsync(pathwayRegistrations, bulkConfig);
+
+                                pathwayRegistrations.ForEach(pathway =>
+                                {
+                                    pathway.TqRegistrationSpecialisms.ToList().ForEach(specialism =>
+                                    {
+                                        specialism.TqRegistrationPathwayId = pathway.Id;
+                                        specialismRegistrations.Add(specialism);
+                                    });
+                                });
+                            }
+
+                            if (specialismRegistrations.Count > 0)
+                            {
+                                await _dbContext.BulkInsertOrUpdateAsync(specialismRegistrations, bulkConfig => { bulkConfig.UseTempDB = true; bulkConfig.BatchSize = 10000; bulkConfig.BulkCopyTimeout = 0; });
+                            }
+
+                            transaction.Commit();
+                            result = true;
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex.Message, ex.InnerException);
+                            transaction.Rollback();
+                            //throw;
+                        }
+                    }
+                });
+            }
+            return result;
         }
     }
 }
