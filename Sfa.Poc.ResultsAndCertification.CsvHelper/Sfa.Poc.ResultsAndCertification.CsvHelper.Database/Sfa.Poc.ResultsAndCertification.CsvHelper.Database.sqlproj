@@ -69,6 +69,7 @@
   <ItemGroup>
     <None Include="Sfa.Poc.ResultsAndCertification.CsvHelper.Database.Local.publish.xml" />
     <None Include="Sfa.Poc.ResultsAndCertification.CsvHelper.Database.publish.xml" />
+    <None Include="PostDeployment\Indexes.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="Sfa.Poc.ResultsAndCertification.CsvHelper.Database.refactorlog" />

@@ -74,15 +74,14 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Controllers
                     
                     response.Registrations = invalidRegistrations;
                     response.ValidationErrors = response.ValidationMessages; // copy
-
-                    // Step: Map data to DB model type.
-                    var tqRegistrations = _registrationService.TransformRegistrationModel(validationResponse.Where(x => x.IsValid).ToList(), performedBy);
-
-                    // Step: Process DB operation
-                    //var result = await _registrationService.SaveBulkRegistrationsAsync(tqRegistrations, ukprn);
-
                     return response;
                 }
+
+                // Step: Map data to DB model type.
+                var tqRegistrations = _registrationService.TransformRegistrationModel(validationResponse, performedBy).ToList();
+
+                // Step: Process DB operation
+                var result = await _registrationService.CompareAndProcessRegistrations(tqRegistrations);
             }
 
             return response;

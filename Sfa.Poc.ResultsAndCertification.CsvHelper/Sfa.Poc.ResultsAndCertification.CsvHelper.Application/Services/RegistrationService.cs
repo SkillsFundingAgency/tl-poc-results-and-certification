@@ -386,51 +386,54 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
         }
 
 
-        public async Task<BulkUploadResponse> CompareAndProcessRegistrations()
+        public async Task<BulkUploadResponse> CompareAndProcessRegistrations(IList<TqRegistrationProfile> registrations)
         {
             var result = new BulkUploadResponse();
-            var seedValue = 0;
-            var entitiesToLoad = 10000;
             var ulns = new HashSet<int>();
-            var registrations = new List<TqRegistrationProfile>();
-            var dateTimeNow = DateTime.Now;
-            Random random = new Random();
-            for (int i = 1; i <= entitiesToLoad; i++)
-            {
-                if (i <= 10000)
-                    ulns.Add(seedValue + i);
 
-                var reg = new TqRegistrationProfile
-                {
-                    //Id = i,
-                    UniqueLearnerNumber = seedValue + i,
-                    Firstname = "Firstname " + (seedValue + "X" + i),
-                    Lastname = "Lastname " + (seedValue + i),
-                    DateofBirth = DateTime.Parse("17/01/1983")
-                };
+            //var seedValue = 0;
+            //var entitiesToLoad = 10000;
+            //var ulns = new HashSet<int>();
+            //var registrations = new List<TqRegistrationProfile>();
+            //var dateTimeNow = DateTime.Now;
+            //Random random = new Random();
+            //for (int i = 1; i <= entitiesToLoad; i++)
+            //{
+            //    if (i <= 10000)
+            //        ulns.Add(seedValue + i);
 
-                reg.TqRegistrationPathways = new List<TqRegistrationPathway>
-                    {
-                        new TqRegistrationPathway
-                        {
-                            TqProviderId = 2,
-                            StartDate = DateTime.Parse("01/06/2020"),
-                            Status = 1,
-                            TqProvider = new TqProvider { TqAwardingOrganisationId = 1, TlProviderId = 2,  TqAwardingOrganisation = new TqAwardingOrganisation { TlAwardingOrganisatonId = 3, TlPathwayId = 5 } },
-                            TqRegistrationSpecialisms = new List<TqRegistrationSpecialism>
-                            {
-                                new TqRegistrationSpecialism
-                                {
-                                    TlSpecialismId = 17,
-                                    StartDate = DateTime.Parse("21/07/2020"),
-                                    Status = 1
-                                }
-                            }
-                        }
-                    };
+            //    var reg = new TqRegistrationProfile
+            //    {
+            //        //Id = i,
+            //        UniqueLearnerNumber = seedValue + i,
+            //        Firstname = "Firstname " + (seedValue + "XY" + i),
+            //        Lastname = "Lastname " + (seedValue + i),
+            //        DateofBirth = DateTime.Parse("17/01/1983")
+            //    };
 
-                registrations.Add(reg);
-            }
+            //    reg.TqRegistrationPathways = new List<TqRegistrationPathway>
+            //        {
+            //            new TqRegistrationPathway
+            //            {
+            //                TqProviderId = 1,
+            //                StartDate = DateTime.Parse("01/06/2020"),
+            //                Status = 1,
+            //                TqProvider = new TqProvider { TqAwardingOrganisationId = 1, TlProviderId = 1,  TqAwardingOrganisation = new TqAwardingOrganisation { TlAwardingOrganisatonId = 1, TlPathwayId = 1 } },
+            //                //TqProvider = new TqProvider { TqAwardingOrganisationId = 1, TlProviderId = 2,  TqAwardingOrganisation = new TqAwardingOrganisation { TlAwardingOrganisatonId = 3, TlPathwayId = 5 } },
+            //                TqRegistrationSpecialisms = new List<TqRegistrationSpecialism>
+            //                {
+            //                    new TqRegistrationSpecialism
+            //                    {
+            //                        TlSpecialismId = 17,
+            //                        StartDate = DateTime.Parse("21/07/2020"),
+            //                        Status = 1
+            //                    }
+            //                }
+            //            }
+            //        };
+
+            //    registrations.Add(reg);
+            //}
 
             var watch = System.Diagnostics.Stopwatch.StartNew();
             watch.Start();
@@ -445,8 +448,10 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
                 .ToListAsync();
 
 
-            //watch.Stop();
-            //var sec = watch.ElapsedMilliseconds;
+            watch.Stop();
+            var sec1 = watch.ElapsedMilliseconds;
+
+            watch.Restart();
 
             var modifiedRegistrations = new List<TqRegistrationProfile>();
             var modifiedRegistrationsToIgnore = new List<TqRegistrationProfile>();
@@ -629,7 +634,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
                 result.BulkUploadStats = new BulkUploadStats
                 {
                     NewRecordsCount = newRegistrations.Count,
-                    UpdatedRecordsCount = modifiedPathwayRecords.Count,
+                    UpdatedRecordsCount = modifiedRegistrations.Count,
                     DuplicateRecordsCount = sameOrDuplicateRegistrations.Count
                 };
             }
