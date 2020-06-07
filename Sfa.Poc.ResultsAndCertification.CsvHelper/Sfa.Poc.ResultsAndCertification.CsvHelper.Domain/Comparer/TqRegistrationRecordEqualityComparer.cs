@@ -45,8 +45,8 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Domain.Comparer
                     foreach (var registrationSpecialism in registrationPathway.TqRegistrationSpecialisms)
                     {
                         hashCode = (hashCode * 397) ^ registrationSpecialism.TlSpecialismId.GetHashCode();
-                        hashCode = (hashCode * 397) ^ registrationSpecialism.StartDate.GetHashCode();
-                        hashCode = (hashCode * 397) ^ (registrationSpecialism.EndDate != null ? registrationSpecialism.EndDate.GetHashCode() : 0);
+                        //hashCode = (hashCode * 397) ^ registrationSpecialism.StartDate.GetHashCode();
+                        //hashCode = (hashCode * 397) ^ (registrationSpecialism.EndDate != null ? registrationSpecialism.EndDate.GetHashCode() : 0);
                         hashCode = (hashCode * 397) ^ registrationSpecialism.Status.GetHashCode();
                     }
                 }
@@ -127,8 +127,8 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Domain.Comparer
                 var retVal =
                     //x.TqRegistrationPathwayId == y.TqRegistrationPathwayId &&
                     x.TlSpecialismId == y.TlSpecialismId
-                    && Equals(x.StartDate, y.StartDate)
-                    && Equals(x.EndDate, y.EndDate)
+                    //&& Equals(x.StartDate, y.StartDate)
+                    //&& Equals(x.EndDate, y.EndDate)
                     && x.Status == y.Status;
                 return retVal;
             }

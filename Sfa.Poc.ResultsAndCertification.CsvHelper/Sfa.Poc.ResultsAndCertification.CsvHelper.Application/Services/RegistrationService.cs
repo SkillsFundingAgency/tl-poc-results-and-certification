@@ -446,9 +446,10 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
             //    registrations.Add(reg);
             //}
 
-            var watch = System.Diagnostics.Stopwatch.StartNew();
-            watch.Start();
+            //var watch = System.Diagnostics.Stopwatch.StartNew();
+            //watch.Start();
 
+            registrations.ToList().ForEach(r => ulns.Add(r.UniqueLearnerNumber));
             var existingRegistrationsFromDb = await ctx.TqRegistrationProfile.Where(x => ulns.Contains(x.UniqueLearnerNumber))
                 .Include(x => x.TqRegistrationPathways)
                     .ThenInclude(x => x.TqRegistrationSpecialisms)
@@ -459,10 +460,10 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
                 .ToListAsync();
 
 
-            watch.Stop();
-            var sec1 = watch.ElapsedMilliseconds;
+            //watch.Stop();
+            //var sec1 = watch.ElapsedMilliseconds;
 
-            watch.Restart();
+            //watch.Restart();
 
             var modifiedRegistrations = new List<TqRegistrationProfile>();
             var modifiedRegistrationsToIgnore = new List<TqRegistrationProfile>();
@@ -641,7 +642,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
             if (!result.HasAnyErrors && (newRegistrations.Count > 0 || modifiedRegistrations.Count > 0))
             {
                 var registrationsToSendToDB = newRegistrations.Concat(modifiedRegistrations.Except(modifiedRegistrationsToIgnore, ulnComparer)).ToList();
-                //result.IsSuccess = await _registrationRepository.BulkInsertOrUpdateTqRegistrations(registrationsToSendToDB, modifiedPathwayRecords, modifiedSpecialismRecords);
+                result.IsSuccess = await _registrationRepository.BulkInsertOrUpdateTqRegistrations(registrationsToSendToDB, modifiedPathwayRecords, modifiedSpecialismRecords);
                 result.BulkUploadStats = new BulkUploadStats
                 {
                     NewRecordsCount = newRegistrations.Count,
@@ -650,8 +651,8 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
                 };
             }
 
-            watch.Stop();
-            var sec = watch.ElapsedMilliseconds;
+            //watch.Stop();
+            //var sec = watch.ElapsedMilliseconds;
 
             return result;
         }

@@ -18,3 +18,4 @@ Post-Deployment Script Template
 :r ".\SeedTqAwardingOrganisations.sql"
 :r ".\SeedNotificationTemplates.sql"
 :r ".\SeedTlProviders.sql"
+:r ".\SeedTqProvider.sql"

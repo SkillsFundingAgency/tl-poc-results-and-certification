@@ -59,9 +59,9 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Controllers
 
             // Temp code for validation
             ViewBag.ElapsedTime = watch.ElapsedMilliseconds;
-            TempData[ValidationErrors] = JsonConvert.SerializeObject(results.ValidationErrors);
+            //TempData[ValidationErrors] = JsonConvert.SerializeObject(results.ValidationErrors);
 
-            return View("ViewAll", results.Registrations);
+            return View();
         }
 
         public FileResult GetRejectedData()
