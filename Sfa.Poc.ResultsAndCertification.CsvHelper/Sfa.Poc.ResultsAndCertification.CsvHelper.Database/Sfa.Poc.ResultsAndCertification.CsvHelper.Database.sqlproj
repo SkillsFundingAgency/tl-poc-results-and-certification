@@ -98,5 +98,6 @@
     <Build Include="Tables\TqRegistrationProfile.sql" />
     <Build Include="Tables\TqRegistrationPathway.sql" />
     <Build Include="Tables\TqRegistrationSpecialism.sql" />
+    <Build Include="Tables\DocumentUploadHistory.sql" />
   </ItemGroup>
 </Project>

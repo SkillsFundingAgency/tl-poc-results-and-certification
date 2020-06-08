@@ -6,4 +6,3 @@ CREATE NONCLUSTERED INDEX IX_TqRegistrationPathway_RegistrationProfileId ON [Res
 
 IF NOT EXISTS(SELECT * FROM sys.indexes WHERE object_id = object_id('ResultsAndCertification_1Million.TqRegistrationSpecialism') AND NAME ='IX_TqRegistrationSpecialism_All')
 CREATE NONCLUSTERED INDEX IX_TqRegistrationSpecialism_All ON [ResultsAndCertification_1Million].[dbo].[TqRegistrationSpecialism] ([TqRegistrationPathwayId])
-INCLUDE ([Id],[TlSpecialismId],[StartDate],[EndDate],[Status],[CreatedOn],[CreatedBy],[ModifiedOn],[ModifiedBy])

@@ -6,7 +6,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Domain.Models
     {
         public TlAwardingOrganisation()
         {
-            TqAwardingOrganisations = new HashSet<TqAwardingOrganisation>();
+            DocumentUploadHistorys = new HashSet<DocumentUploadHistory>();
         }
 
         public long UkPrn { get; set; }
@@ -15,5 +15,6 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Domain.Models
         public bool IsActive { get; set; }
 
         public virtual ICollection<TqAwardingOrganisation> TqAwardingOrganisations { get; set; }
+        public virtual ICollection<DocumentUploadHistory> DocumentUploadHistorys { get; set; }
     }
 }
