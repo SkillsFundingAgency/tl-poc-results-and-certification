@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -35,6 +36,12 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Controllers
             return View(model);
         }
 
+        [HttpGet]
+        public FileResult DownloadErrors()
+        {
+            var bytearray = Convert.FromBase64String(TempData[ValidationErrors] as string);
+            return File(bytearray, "text/csv", "ValidationErrors.csv");
+        }
 
         [HttpPost]
         public async Task<IActionResult> BulkRegistrationsAsync(RegistrationsFileViewModel model)
@@ -60,7 +67,8 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Controllers
             // Temp code for validation
             ViewBag.ElapsedTime = watch.ElapsedMilliseconds;
             //TempData[ValidationErrors] = JsonConvert.SerializeObject(results.ValidationErrors);
-
+            
+            TempData[ValidationErrors] = Convert.ToBase64String(results.ErrorFileBytes);
             return View();
         }
 

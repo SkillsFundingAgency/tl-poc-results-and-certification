@@ -10,5 +10,6 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Service
         Task<IList<TModel>> ValidateAndParseFileAsync(TImportModel fileImportDto);
         Task<IEnumerable<Registration>> ReadDataAsync(IFormFile file);
         Task DownloadRegistrationsCsvAsync(IEnumerable<Registration> students, string path);
+        Task<byte[]> WriteErrorFile(List<ValidationError> validationErrors);
     }
 }

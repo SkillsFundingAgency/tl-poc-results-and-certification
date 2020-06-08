@@ -1,6 +1,7 @@
 ﻿using Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Model;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Models
 {
@@ -26,5 +27,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Models
         }
 
         public bool IsValid { get { return !Registrations.Any(x => !x.IsValid); } }
+
+        public byte[] ErrorFileBytes { get; set; }
     }
 }
