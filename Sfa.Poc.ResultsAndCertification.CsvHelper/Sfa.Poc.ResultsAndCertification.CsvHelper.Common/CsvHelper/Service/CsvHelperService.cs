@@ -225,6 +225,16 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Service
             return returnModel;
         }
 
+        public async Task<byte[]> WriteErrorFile(List<ValidationError> validationErrors) 
+        {
+            using var ms = new MemoryStream();
+            using var sw = new StreamWriter(ms);
+            using var cw = new CsvWriter(sw, CultureInfo.InvariantCulture);
+            await cw.WriteRecordsAsync(validationErrors);
+
+            return ms.ToArray();
+        }
+
         private void CreateAndLogErrorObject(List<TModel> returnModel, Exception ex, string customErrorMessage)
         {
             // Todo: Log the the full error details.

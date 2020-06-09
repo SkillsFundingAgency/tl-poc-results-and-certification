@@ -74,6 +74,9 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Controllers
                     
                     response.Registrations = invalidRegistrations;
                     response.ValidationErrors = response.ValidationMessages; // copy
+
+                    response.ErrorFileBytes = await _csvParserService.WriteErrorFile(response.ValidationErrors);
+
                     return response;
                 }
 
