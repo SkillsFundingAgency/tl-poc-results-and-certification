@@ -46,14 +46,14 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Client.Clients
             var requestUri = $"/api/registration/bulk-upload1";
 
             using var content = new MultipartFormDataContent();
-            content.Add(new StreamContent(request.RegistrationFile.OpenReadStream())
-            {
-                Headers =
-                {
-                    ContentLength = request.RegistrationFile.Length,
-                    ContentType = new MediaTypeHeaderValue(request.RegistrationFile.ContentType)
-                }
-            }, "Attachment", "FileImport");
+            //content.Add(new StreamContent(request.RegistrationFile.OpenReadStream())
+            //{
+            //    Headers =
+            //    {
+            //        ContentLength = request.RegistrationFile.Length,
+            //        ContentType = new MediaTypeHeaderValue(request.RegistrationFile.ContentType)
+            //    }
+            //}, "Attachment", "FileImport");
 
             var response = await _httpClient.PostAsync(requestUri, content);
             response.EnsureSuccessStatusCode();

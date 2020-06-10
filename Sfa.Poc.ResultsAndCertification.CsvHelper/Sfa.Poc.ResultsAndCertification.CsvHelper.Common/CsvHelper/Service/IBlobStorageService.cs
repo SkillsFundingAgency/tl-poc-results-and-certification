@@ -5,8 +5,8 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Service
 {
     public interface IBlobStorageService
     {
-        Task UploadFileAsync(string filePath, Stream stream);
-        Task<Stream> DownloadFileAsync(string filePath);
-        Task<bool> MoveFileAsync(string sourceFilePath, string destinationFilePath);
+        Task UploadFileAsync(string storageConnectionString, string containerName, string filePath, Stream stream);
+        Task<Stream> DownloadFileAsync(string storageConnectionString, string containerName, string filePath);
+        Task<bool> MoveFileAsync(string storageConnectionString, string containerName, string sourceFilePath, string destinationFilePath);
     }
 }

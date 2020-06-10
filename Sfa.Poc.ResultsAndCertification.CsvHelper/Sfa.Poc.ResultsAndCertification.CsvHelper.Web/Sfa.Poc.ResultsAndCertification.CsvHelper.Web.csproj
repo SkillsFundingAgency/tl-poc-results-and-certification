@@ -29,6 +29,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Client\Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Client.csproj" />
     <ProjectReference Include="..\Sfa.Poc.ResultsAndCertification.CsvHelper.Application\Sfa.Poc.ResultsAndCertification.CsvHelper.Application.csproj" />
+    <ProjectReference Include="..\Sfa.Poc.ResultsAndCertification.CsvHelper.Common\Sfa.Poc.ResultsAndCertification.CsvHelper.Common.csproj" />
     <ProjectReference Include="..\Sfa.Poc.ResultsAndCertification.CsvHelper.Models\Sfa.Poc.ResultsAndCertification.CsvHelper.Models.csproj" />
   </ItemGroup>
 

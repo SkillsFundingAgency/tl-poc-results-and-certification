@@ -1,21 +1,24 @@
 ﻿using Microsoft.Azure.Storage;
 using Microsoft.Azure.Storage.Blob;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 
 namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Service
 {
     public class BlobStorageService : IBlobStorageService
-    {   
-        public async Task UploadFileAsync(string filePath, Stream stream)
+    {
+        public const string ContainerName = "Registrations";
+
+        public async Task UploadFileAsync(string storageConnectionString, string containerName, string filePath, Stream stream)
         {
-            var blobReference = await GetBlockBlobReference("", "", filePath);
+            var blobReference = await GetBlockBlobReference(storageConnectionString, containerName, filePath);
             await blobReference.UploadFromStreamAsync(stream);
         }
 
-        public async Task<Stream> DownloadFileAsync(string filePath)
+        public async Task<Stream> DownloadFileAsync(string storageConnectionString, string containerName, string filePath)
         {
-            var blobReference = await GetBlockBlobReference("", "", filePath);
+            var blobReference = await GetBlockBlobReference(storageConnectionString, containerName, filePath);
 
             if (blobReference.ExistsAsync().Result)
             {
@@ -29,10 +32,10 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Service
             }
         }
 
-        public async Task<bool> MoveFileAsync(string sourceFilePath, string destinationFilePath)
+        public async Task<bool> MoveFileAsync(string storageConnectionString, string containerName, string sourceFilePath, string destinationFilePath)
         {
-            var sourceBlobReference = await GetBlockBlobReference("", "", sourceFilePath);
-            var destinationBlobReference = await GetBlockBlobReference("", "", destinationFilePath);
+            var sourceBlobReference = await GetBlockBlobReference(storageConnectionString, containerName, sourceFilePath);
+            var destinationBlobReference = await GetBlockBlobReference(storageConnectionString, containerName, destinationFilePath);
 
             await destinationBlobReference.StartCopyAsync(sourceBlobReference);
             return await sourceBlobReference.DeleteIfExistsAsync();
@@ -48,7 +51,14 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Service
         {
             var storageAccount = CloudStorageAccount.Parse(storageConnectionString);
             var blobContainerReference = storageAccount.CreateCloudBlobClient().GetContainerReference(containerName);
-            await blobContainerReference.CreateIfNotExistsAsync();
+            try
+            {
+                await blobContainerReference.CreateIfNotExistsAsync();
+            }
+            catch(Exception ex)
+            {
+                var excep = ex;
+            }
             return blobContainerReference;
         }
     }

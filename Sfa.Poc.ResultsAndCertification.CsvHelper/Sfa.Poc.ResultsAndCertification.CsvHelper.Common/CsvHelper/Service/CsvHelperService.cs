@@ -164,9 +164,11 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Service
                     PrepareHeaderForMatch = (string header, int index) => header.ToLower()
                 };
 
-                using var reader = new StreamReader(importModel.File.OpenReadStream());
+                importModel.FileStream.Position = 0;
+                using var reader = new StreamReader(importModel.FileStream);
+                //using var reader = new StreamReader(importModel.File.OpenReadStream());
                 using var csv = new CsvReader(reader, config);
-
+                
                 csv.Read();
                 ValidateHeader(csv);
                 var rownum = 1;

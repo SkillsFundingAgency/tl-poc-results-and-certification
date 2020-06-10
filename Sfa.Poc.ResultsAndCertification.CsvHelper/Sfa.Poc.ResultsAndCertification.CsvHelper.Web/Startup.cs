@@ -25,6 +25,7 @@ using Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Client.Clients;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Filters;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Web.WebConfigurationHelper;
 using Sfa.Tl.ResultsAndCertification.Web.WebConfigurationHelper;
+using Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Service;
 
 namespace Sfa.Poc.ResultsAndCertification.Layout.Web
 {
@@ -171,6 +172,8 @@ namespace Sfa.Poc.ResultsAndCertification.Layout.Web
             services.AddSingleton<IWebConfigurationService, WebConfigurationService>();
             //services.AddTransient<ITlevelLoader, TlevelLoader>();
             //services.AddTransient<IProviderLoader, ProviderLoader>();
+
+            services.AddTransient<IBlobStorageService, BlobStorageService>();
         }
     }
 }
