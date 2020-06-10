@@ -1,6 +1,5 @@
 ﻿using Microsoft.Azure.Storage;
 using Microsoft.Azure.Storage.Blob;
-using System;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -8,19 +7,23 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Service
 {
     public class BlobStorageService : IBlobStorageService
     {
-        public const string ContainerName = "Registrations";
-
         public async Task UploadFileAsync(string storageConnectionString, string containerName, string filePath, Stream stream)
         {
             var blobReference = await GetBlockBlobReference(storageConnectionString, containerName, filePath);
             await blobReference.UploadFromStreamAsync(stream);
         }
 
+        public async Task UploadFromByteArrayAsync(string storageConnectionString, string containerName, string filePath, byte[] data)
+        {
+            var blobReference = await GetBlockBlobReference(storageConnectionString, containerName, filePath);
+            await blobReference.UploadFromByteArrayAsync(data, 0, data.Length);
+        }
+
         public async Task<Stream> DownloadFileAsync(string storageConnectionString, string containerName, string filePath)
         {
             var blobReference = await GetBlockBlobReference(storageConnectionString, containerName, filePath);
 
-            if (blobReference.ExistsAsync().Result)
+            if (await blobReference.ExistsAsync())
             {
                 var ms = new MemoryStream();
                 await blobReference.DownloadToStreamAsync(ms);
@@ -51,14 +54,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Service
         {
             var storageAccount = CloudStorageAccount.Parse(storageConnectionString);
             var blobContainerReference = storageAccount.CreateCloudBlobClient().GetContainerReference(containerName);
-            try
-            {
-                await blobContainerReference.CreateIfNotExistsAsync();
-            }
-            catch(Exception ex)
-            {
-                var excep = ex;
-            }
+            await blobContainerReference.CreateIfNotExistsAsync();
             return blobContainerReference;
         }
     }

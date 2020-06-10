@@ -16,7 +16,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Service
-{
+{    
     public class CsvHelperService<TImportModel, TModel> : ICsvHelperService<TImportModel, TModel> where TModel : class, new() where TImportModel : BaseModel
     {
         private readonly IValidator<TImportModel> _validator;
@@ -235,7 +235,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Service
             await cw.WriteRecordsAsync(validationErrors);
 
             return ms.ToArray();
-        }
+        }        
 
         private void CreateAndLogErrorObject(List<TModel> returnModel, Exception ex, string customErrorMessage)
         {

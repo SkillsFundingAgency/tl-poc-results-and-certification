@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Model;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Service

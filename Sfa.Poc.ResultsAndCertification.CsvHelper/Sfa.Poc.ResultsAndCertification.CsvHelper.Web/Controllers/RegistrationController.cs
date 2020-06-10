@@ -63,12 +63,11 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Controllers
                 BlobReferencePath = fileName
             };
 
-            using var fileStream = model.RegistrationFile.OpenReadStream();
-            await _blobStorageService.UploadFileAsync(_configuration.BlobStorageConnectionString, "registrations", $"{bulkRegistrationRequest.Ukprn}/processing/{fileName}", fileStream);
-
+            using (var fileStream = model.RegistrationFile.OpenReadStream())
+            {
+                await _blobStorageService.UploadFileAsync(_configuration.BlobStorageConnectionString, "registrations", $"{bulkRegistrationRequest.Ukprn}/processing/{fileName}", fileStream);
+            }
             ////await _blobStorageService.MoveFileAsync(_configuration.BlobStorageConnectionString, "registrations", "1000008/processing/inputfile.csv", "1000008/processed/inputfile.csv");
-
-
 
             var results = await _internalApiClient.ProcessBulkRegistrationsAsync(bulkRegistrationRequest);
 
@@ -91,10 +90,11 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Controllers
             //var result = model.Select(x => x.RawRow);
             var result = string.Empty;
 
-            var fileStream = await _blobStorageService.DownloadFileAsync(_configuration.BlobStorageConnectionString, "registrations", "1000008/processed/inputfile.csv");
-
-            fileStream.Position = 0;
-            return File(fileStream, "text/csv", "RejectedData.csv");
+            using (var fileStream = await _blobStorageService.DownloadFileAsync(_configuration.BlobStorageConnectionString, "registrations", "1000008/processed/inputfile.csv"))
+            {
+                fileStream.Position = 0;
+                return File(fileStream, "text/csv", "RejectedData.csv");
+            }
             //return File(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(result)), "text/csv", "RejectedData.csv");
         }
 
@@ -109,6 +109,6 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Controllers
         {
             await Task.Run(() => true);
             return View();
-        }
+        }       
     }
 }

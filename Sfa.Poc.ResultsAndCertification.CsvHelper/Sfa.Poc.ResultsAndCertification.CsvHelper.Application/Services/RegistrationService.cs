@@ -1,17 +1,17 @@
-﻿using Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Interfaces;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
+using Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Interfaces;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Model;
+using Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Model;
+using Sfa.Poc.ResultsAndCertification.CsvHelper.Data;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Data.Interfaces;
+using Sfa.Poc.ResultsAndCertification.CsvHelper.Domain.Comparer;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Domain.Models;
+using Sfa.Poc.ResultsAndCertification.CsvHelper.Models.BulkUpload;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Sfa.Poc.ResultsAndCertification.CsvHelper.Data;
-using Microsoft.EntityFrameworkCore;
-using Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Model;
 using System.Threading.Tasks;
-using Sfa.Poc.ResultsAndCertification.CsvHelper.Domain.Comparer;
-using Microsoft.EntityFrameworkCore.Internal;
-using Sfa.Poc.ResultsAndCertification.CsvHelper.Models.BulkUpload;
 
 namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
 {
@@ -24,11 +24,12 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
         private readonly IRegistrationRepository _registrationRepository;
         private readonly IRepository<TqRegistrationProfile> _tqRegistrationProfileRepository;
         private readonly IRepository<TqRegistrationPathway> _tqRegistrationPathwayRepository;
+        private readonly IRepository<DocumentUploadHistory> _documentUploadHistoryRepository;
 
         public RegistrationService(IRepository<TlPathway> pathwayRepository, ResultsAndCertificationDbContext context,
             IRepository<TqRegistration> tqRegistrationRepository, IRepository<TqSpecialismRegistration> tqSpecialismRegistrationRepository,
             IRegistrationRepository registrationRepository, IRepository<TqRegistrationProfile> tqRegistrationProfileRepository,
-            IRepository<TqRegistrationPathway> tqRegistrationPathwayRepository)
+            IRepository<TqRegistrationPathway> tqRegistrationPathwayRepository, IRepository<DocumentUploadHistory> documentUploadHistoryRepository)
         {
             _pathwayRepository = pathwayRepository;
             _tqRegistrationRepository = tqRegistrationRepository;
@@ -36,6 +37,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
             _registrationRepository = registrationRepository;
             _tqRegistrationProfileRepository = tqRegistrationProfileRepository;
             _tqRegistrationPathwayRepository = tqRegistrationPathwayRepository;
+            _documentUploadHistoryRepository = documentUploadHistoryRepository;
             ctx = context;
         }
 
@@ -670,6 +672,15 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Services
                 CreatedOn = DateTime.UtcNow,
 
             }).ToList();
+        }
+
+        public async Task<bool> CreateDocumentUploadHistory(DocumentUploadHistory documentUploadHistory)
+        {
+            if (documentUploadHistory != null)
+            {
+                return await _documentUploadHistoryRepository.CreateAsync(documentUploadHistory) > 0;
+            }
+            return false;
         }
     }
 }
