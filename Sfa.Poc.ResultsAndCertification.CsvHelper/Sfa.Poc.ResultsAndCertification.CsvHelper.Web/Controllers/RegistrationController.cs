@@ -6,7 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Client.Interfaces;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Model;
+using Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Service;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Models;
+using Sfa.Poc.ResultsAndCertification.CsvHelper.Models.Configuration;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Models;
 
 namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Controllers
@@ -14,14 +16,18 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Controllers
     public class RegistrationController : Controller
     {
         private readonly IResultsAndCertificationInternalApiClient _internalApiClient;
+        private readonly IBlobStorageService _blobStorageService;
+        private readonly ResultsAndCertificationConfiguration _configuration;
 
         private const string InvalidRegistrations = "InvalidRegistrations";
         private const string ValidationErrors = "ValidationErrors";
         private const string ElapsedTime = "ElapsedTime";
 
-        public RegistrationController(IResultsAndCertificationInternalApiClient internalApiClient)
+        public RegistrationController(ResultsAndCertificationConfiguration configuration, IResultsAndCertificationInternalApiClient internalApiClient, IBlobStorageService blobStorageService)
         {
             _internalApiClient = internalApiClient;
+            _blobStorageService = blobStorageService;
+            _configuration = configuration;
         }
 
         public IActionResult Index()
@@ -54,32 +60,49 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Controllers
                 return View("Upload", model);
             }
 
-            var results = await _internalApiClient.ProcessBulkRegistrationsAsync(model.RegistrationFile);
-            //var results = await _internalApiClient.ProcessBulkRegistrationsAsync1(new BulkRegistrationRequest
-            //{
-            //    performedBy = "Test User",
-            //    Ukprn = 10009696,
-            //    RegistrationFile = model.RegistrationFile
-            //});
+            var fileName = $"inputfile_{DateTime.Now.Ticks}.csv";
+
+            var bulkRegistrationRequest = new BulkRegistrationRequest
+            {
+                performedBy = "testuser@test.com",
+                Ukprn = 10009696, // NCFE
+                BlobReferencePath = fileName
+            };
+
+            using var fileStream = model.RegistrationFile.OpenReadStream();
+            await _blobStorageService.UploadFileAsync(_configuration.BlobStorageConnectionString, "registrations", $"{bulkRegistrationRequest.Ukprn}/processing/{fileName}", fileStream);
+
+            ////await _blobStorageService.MoveFileAsync(_configuration.BlobStorageConnectionString, "registrations", "1000008/processing/inputfile.csv", "1000008/processed/inputfile.csv");
+
+
+
+            var results = await _internalApiClient.ProcessBulkRegistrationsAsync(bulkRegistrationRequest);
+
+            //var results = await _internalApiClient.ProcessBulkRegistrationsAsync(model.RegistrationFile);
 
             watch.Stop();
 
             // Temp code for validation
             ViewBag.ElapsedTime = watch.ElapsedMilliseconds;
-            TempData["ValidationErrors1"] = JsonConvert.SerializeObject(results.ValidationErrors);
-
-            TempData["ValidationErrors2"] = Convert.ToBase64String(results.ErrorFileBytes);
+            //TempData[ValidationErrors] = JsonConvert.SerializeObject(results.ValidationErrors);
+            
+            TempData[ValidationErrors] = Convert.ToBase64String(results.ErrorFileBytes);
             return View();
         }
 
-        public FileResult GetRejectedData()
+        [HttpGet]
+        public async Task<FileResult> GetRejectedData()
         {
             //var tempData = TempData[ValidationErrors] as string;
             //var model = JsonConvert.DeserializeObject<IEnumerable<ValidationError>>(tempData);
             //var result = model.Select(x => x.RawRow);
             var result = string.Empty;
 
-            return File(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(result)), "text/csv", "RejectedData.csv");
+            var fileStream = await _blobStorageService.DownloadFileAsync(_configuration.BlobStorageConnectionString, "registrations", "1000008/processed/inputfile.csv");
+
+            fileStream.Position = 0;
+            return File(fileStream, "text/csv", "RejectedData.csv");
+            //return File(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(result)), "text/csv", "RejectedData.csv");
         }
 
         public IActionResult GetValidationErrors()

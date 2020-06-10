@@ -161,6 +161,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api
             services.AddTransient<IValidator<RegistrationCsvRecord>, RegistrationDataValidator>();
             services.AddTransient<ICsvHelperService<RegistrationCsvRecord, Registration>, CsvHelperService<RegistrationCsvRecord, Registration>>();
             services.AddTransient<IRegistrationService, RegistrationService>();
+            services.AddTransient<IBlobStorageService, BlobStorageService>();
         }
     }
 }
