@@ -42,6 +42,12 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Controllers
             return View(model);
         }
 
+        [HttpGet]
+        public FileResult DownloadErrors()
+        {
+            var bytearray = Convert.FromBase64String(TempData["ValidationErrors2"] as string);
+            return File(bytearray, "text/csv", "ValidationErrors.csv");
+        }
 
         [HttpPost]
         public async Task<IActionResult> BulkRegistrationsAsync(RegistrationsFileViewModel model)
@@ -78,7 +84,8 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Controllers
             // Temp code for validation
             ViewBag.ElapsedTime = watch.ElapsedMilliseconds;
             //TempData[ValidationErrors] = JsonConvert.SerializeObject(results.ValidationErrors);
-
+            
+            TempData[ValidationErrors] = Convert.ToBase64String(results.ErrorFileBytes);
             return View();
         }
 
@@ -100,7 +107,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Controllers
 
         public IActionResult GetValidationErrors()
         {
-            var tempData = TempData[ValidationErrors] as string;
+            var tempData = TempData["ValidationErrors2"] as string;
             var model = JsonConvert.DeserializeObject<IEnumerable<ValidationError>>(tempData);
             return View("ValidationErrorList", model);
         }
