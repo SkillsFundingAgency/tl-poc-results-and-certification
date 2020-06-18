@@ -16,12 +16,12 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Controllers
     [ApiController]
     public class RegistrationController : ControllerBase
     {
-        private readonly ICsvHelperService<RegistrationCsvRecord, Registration> _csvParserService;
+        private readonly ICsvHelperService<RegistrationCsvRecord, Registration, ImportResponseRecord<Registration>> _csvParserService;
         private readonly IRegistrationService _registrationService;
         private readonly IBlobStorageService _blobStorageService;
         private readonly ResultsAndCertificationConfiguration _configuration;
 
-        public RegistrationController(ResultsAndCertificationConfiguration configuration, ICsvHelperService<RegistrationCsvRecord, Registration> csvParserService, IRegistrationService registrationService, IBlobStorageService blobStorageService)
+        public RegistrationController(ResultsAndCertificationConfiguration configuration, ICsvHelperService<RegistrationCsvRecord, Registration, ImportResponseRecord<Registration>> csvParserService, IRegistrationService registrationService, IBlobStorageService blobStorageService)
         {
             _configuration = configuration;
             _csvParserService = csvParserService;
@@ -65,16 +65,16 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Controllers
                     // Stage 2 validation
                     //var validationResponse = await _csvParserService.ValidateAndParseFileAsync(new RegistrationCsvRecord { FileStream = fileStream });
 
-                    if (validationResponse.Any(x => x.IsFileReadDirty))
+                    if (validationResponse.ResponseModel.Any(x => x.IsFileReadDirty))
                     {
-                        response.ValidationErrors = validationResponse
+                        response.ValidationErrors = validationResponse.ResponseModel
                                                         .Where(x => x.IsFileReadDirty)
                                                         .Select(x => x.ValidationErrors)
                                                         .FirstOrDefault().ToList();
 
                         // We are here when unexpected error while reading file, so filedirty is set(above) and add if any half-way row-levels errors(below)
                         // Todo: force test is required or unit-test must check this. 
-                        response.Registrations = validationResponse.Where(x => !x.IsValid && !x.IsFileReadDirty);
+                        response.Registrations = validationResponse.ResponseModel.Where(x => !x.IsValid && !x.IsFileReadDirty);
                         //response.ValidationErrors.AddRange(response.ValidationMessages);
 
                         documentUploadHistory.Status = 2; // update status to failed
@@ -85,11 +85,11 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Controllers
                     }
 
                     // Stage 3 validation.
-                    await _registrationService.ValidateRegistrationTlevelsAsync(ukprn, validationResponse.Where(x => x.IsValid));
-                    if (validationResponse.Any(x => !x.IsValid))
+                    await _registrationService.ValidateRegistrationTlevelsAsync(ukprn, validationResponse.ResponseModel.Where(x => x.IsValid));
+                    if (validationResponse.ResponseModel.Any(x => !x.IsValid))
                     {
                         // Merge both Stage2 and Stage3 validations and return.
-                        var invalidRegistrations = validationResponse.Where(x => !x.IsValid);
+                        var invalidRegistrations = validationResponse.ResponseModel.Where(x => !x.IsValid);
 
                         response.Registrations = invalidRegistrations;
                         response.ValidationErrors = response.ValidationMessages; // copy
@@ -103,7 +103,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Controllers
                     }
 
                     // Step: Map data to DB model type.
-                    var tqRegistrations = _registrationService.TransformRegistrationModel(validationResponse, performedBy).ToList();
+                    var tqRegistrations = _registrationService.TransformRegistrationModel(validationResponse.ResponseModel, performedBy).ToList();
 
                     // Step: Process DB operation
                     var result = await _registrationService.CompareAndProcessRegistrations(tqRegistrations);
@@ -141,27 +141,27 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Controllers
                 // Stage 2 validation
                 var validationResponse = await _csvParserService.ValidateAndParseFileAsync(new RegistrationCsvRecord { File = file });
 
-                if (validationResponse.Any(x => x.IsFileReadDirty))
+                if (validationResponse.ResponseModel.Any(x => x.IsFileReadDirty))
                 {
-                    response.ValidationErrors = validationResponse
+                    response.ValidationErrors = validationResponse.ResponseModel
                                                     .Where(x => x.IsFileReadDirty)
                                                     .Select(x => x.ValidationErrors)
                                                     .FirstOrDefault().ToList();
 
                     // We are here when unexpected error while reading file, so filedirty is set(above) and add if any half-way row-levels errors(below)
                     // Todo: force test is required or unit-test must check this. 
-                    response.Registrations = validationResponse.Where(x => !x.IsValid && !x.IsFileReadDirty);
+                    response.Registrations = validationResponse.ResponseModel.Where(x => !x.IsValid && !x.IsFileReadDirty);
                     response.ValidationErrors.AddRange(response.ValidationMessages);
 
                     return response;
                 }
 
                 // Stage 3 validation.
-                await _registrationService.ValidateRegistrationTlevelsAsync(ukprn, validationResponse.Where(x => x.IsValid));
-                if (validationResponse.Any(x => !x.IsValid))
+                await _registrationService.ValidateRegistrationTlevelsAsync(ukprn, validationResponse.ResponseModel.Where(x => x.IsValid));
+                if (validationResponse.ResponseModel.Any(x => !x.IsValid))
                 {
                     // Merge both Stage2 and Stage3 validations and return.
-                    var invalidRegistrations = validationResponse.Where(x => !x.IsValid);
+                    var invalidRegistrations = validationResponse.ResponseModel.Where(x => !x.IsValid);
 
                     response.Registrations = invalidRegistrations;
                     response.ValidationErrors = response.ValidationMessages; // copy
@@ -172,7 +172,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Controllers
                 }
 
                 // Step: Map data to DB model type.
-                var tqRegistrations = _registrationService.TransformRegistrationModel(validationResponse, performedBy).ToList();
+                var tqRegistrations = _registrationService.TransformRegistrationModel(validationResponse.ResponseModel, performedBy).ToList();
 
                 // Step: Process DB operation
                 var result = await _registrationService.CompareAndProcessRegistrations(tqRegistrations);

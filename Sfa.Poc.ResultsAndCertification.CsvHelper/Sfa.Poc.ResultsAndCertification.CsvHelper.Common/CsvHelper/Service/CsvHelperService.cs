@@ -16,8 +16,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Service
-{    
-    public class CsvHelperService<TImportModel, TModel> : ICsvHelperService<TImportModel, TModel> where TModel : class, new() where TImportModel : BaseModel
+{
+    public class CsvHelperService<TImportModel, TModel, TResponseModel> : ICsvHelperService<TImportModel, TModel, TResponseModel> where TModel : class, new() where TResponseModel : ResponseBaseModel, new() where TImportModel : BaseModel
     {
         private readonly IValidator<TImportModel> _validator;
         private readonly IDataParser<TModel> _dataParser;
@@ -148,9 +148,20 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Service
             //}
         }
 
-        public async Task<IList<TModel>> ValidateAndParseFileAsync(TImportModel importModel)
+        public async Task<TResponseModel> ValidateAndParseFileAsync(TImportModel importModel)
         {
-            var returnModel = new List<TModel>();
+            var returnModel = new List<TModel>(); 
+
+            var regList = new TResponseModel();
+            regList.IsFileReadDirty = true;
+            var p = regList.GetType().GetProperties();
+
+            var responseModel = regList.GetType().GetProperties()
+                .FirstOrDefault(p => p.PropertyType.IsGenericType && p.PropertyType.GetGenericTypeDefinition() == typeof(IList<>)
+                && p.PropertyType.GenericTypeArguments.First() == typeof(TModel));
+
+
+            //var responseModel = regList.GetType().GetProperties().FirstOrDefault(p => p.Name == "ResponseModel");
 
             var properties = importModel.GetType().GetProperties()
                 .Where(pr => pr.GetCustomAttribute<NameAttribute>(false) != null)
@@ -223,8 +234,12 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Service
             {
                 CreateAndLogErrorObject(returnModel, e, ValidationMessages.UnexpectedError);
             }
-            
-            return returnModel;
+
+
+            responseModel.SetValue(regList, returnModel);
+
+
+            return regList;
         }
 
         public async Task<byte[]> WriteErrorFile(List<ValidationError> validationErrors) 

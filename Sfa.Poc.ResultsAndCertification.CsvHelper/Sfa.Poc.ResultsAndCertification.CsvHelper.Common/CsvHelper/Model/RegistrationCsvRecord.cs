@@ -48,5 +48,6 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Model
 
         [Ignore]
         public int RowNum { get; set; }
+
     }
 }
