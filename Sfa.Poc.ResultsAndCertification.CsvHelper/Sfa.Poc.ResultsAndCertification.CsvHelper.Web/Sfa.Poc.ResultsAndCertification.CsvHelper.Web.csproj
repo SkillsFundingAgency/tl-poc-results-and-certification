@@ -1,0 +1,154 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Authentication\0kfprmmg.weg~" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CsvHelper" Version="15.0.5" />
+    <PackageReference Include="IdentityModel" Version="4.3.0" />
+    <PackageReference Include="JWT" Version="7.2.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.14.0" />
+    <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.7" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="3.1.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="3.1.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.4">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="3.1.4" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.3" />
+    <PackageReference Include="NWebsec.AspNetCore.Middleware" Version="3.0.0" />
+    <PackageReference Include="System.Linq.Async" Version="4.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Client\Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Client.csproj" />
+    <ProjectReference Include="..\Sfa.Poc.ResultsAndCertification.CsvHelper.Application\Sfa.Poc.ResultsAndCertification.CsvHelper.Application.csproj" />
+    <ProjectReference Include="..\Sfa.Poc.ResultsAndCertification.CsvHelper.Common\Sfa.Poc.ResultsAndCertification.CsvHelper.Common.csproj" />
+    <ProjectReference Include="..\Sfa.Poc.ResultsAndCertification.CsvHelper.Models\Sfa.Poc.ResultsAndCertification.CsvHelper.Models.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Views\Registrations\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Content\Dashboard.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Dashboard.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Content\Error\PageNotFound.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>PageNotFound.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Content\Error\ProblemWithService.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ProblemWithService.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Content\Help\Cookies.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Cookies.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Content\Help\TermsAndConditions.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>TermsAndConditions.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Content\Home\StartPage.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>StartPage.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Content\Layout\CookieBanner.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CookieBanner.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Content\Layout\Footer.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Footer.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Content\Layout\Header.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Header.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Content\Layout\PhaseBanner.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>PhaseBanner.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Content\ViewComponents\BackLink.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>BackLink.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Content\ViewComponents\Breadcrumb.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Breadcrumb.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Content\Dashboard.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Dashboard.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Content\Error\PageNotFound.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>PageNotFound.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Content\Error\ProblemWithService.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>ProblemWithService.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Content\Help\Cookies.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Cookies.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Content\Help\TermsAndConditions.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>TermsAndConditions.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Content\Home\StartPage.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>StartPage.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Content\Layout\CookieBanner.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>CookieBanner.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Content\Layout\Footer.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Footer.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Content\Layout\Header.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Header.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Content\Layout\PhaseBanner.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>PhaseBanner.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Content\ViewComponents\BackLink.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>BackLink.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Content\ViewComponents\Breadcrumb.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Breadcrumb.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+</Project>

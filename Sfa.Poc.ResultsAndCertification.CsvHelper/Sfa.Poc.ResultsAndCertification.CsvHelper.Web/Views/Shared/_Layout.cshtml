@@ -1,0 +1,34 @@
+﻿<!DOCTYPE html>
+<html lang="en" class="govuk-template">
+
+<partial name="_govuk_Head" />
+
+<body class="govuk-template__body">
+    <script>
+        document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');
+    </script>
+
+    <a href="#main-content" class="govuk-skip-link">Skip to main content</a>
+
+    <partial name="_govuk_CookieBanner" />
+    <partial name="_govuk_Header" />
+
+    @if (User.Identity.IsAuthenticated)
+    {
+        <partial name="_govuk_PhaseBanner" />
+    }
+
+    <div class="govuk-width-container">
+        @RenderSection("NavigationBar", required: false)
+        <main class="govuk-main-wrapper" id="main-content" role="main">
+            @RenderBody()
+        </main>
+    </div>
+
+    <partial name="_govuk_Footer" />
+
+    <partial name="_govuk_Scripts" />
+    @RenderSection("Scripts", required: false)
+
+</body>
+</html>

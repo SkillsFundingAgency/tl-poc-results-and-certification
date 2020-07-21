@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.14.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.4" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.2" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.4.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Sfa.Poc.ResultsAndCertification.CsvHelper.Application\Sfa.Poc.ResultsAndCertification.CsvHelper.Application.csproj" />
+    <ProjectReference Include="..\Sfa.Poc.ResultsAndCertification.CsvHelper.Common\Sfa.Poc.ResultsAndCertification.CsvHelper.Common.csproj" />
+    <ProjectReference Include="..\Sfa.Poc.ResultsAndCertification.CsvHelper.Data\Sfa.Poc.ResultsAndCertification.CsvHelper.Data.csproj" />
+    <ProjectReference Include="..\Sfa.Poc.ResultsAndCertification.CsvHelper.Domain\Sfa.Poc.ResultsAndCertification.CsvHelper.Domain.csproj" />
+    <ProjectReference Include="..\Sfa.Poc.ResultsAndCertification.CsvHelper.Models\Sfa.Poc.ResultsAndCertification.CsvHelper.Models.csproj" />
+  </ItemGroup>
+
+</Project>

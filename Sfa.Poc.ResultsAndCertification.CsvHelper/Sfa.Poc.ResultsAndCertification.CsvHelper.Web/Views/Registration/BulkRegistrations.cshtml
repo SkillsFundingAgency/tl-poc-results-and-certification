@@ -1,0 +1,16 @@
+﻿@model IEnumerable<Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Model.Registration>
+
+@{
+    ViewData["Title"] = "ViewAll";
+}
+
+<h1 class="govuk-heading-l"> Upload Results</h1>
+
+<p> <a class="govuk-link" asp-action="Upload">Create New</a> </p>
+<p> <a class="govuk-link" asp-action="GetRejectedData"> Download Validation Errors </a> </p>
+<p> <a class="govuk-link" asp-action="GetValidationErrors"> Show Errors </a> </p>
+
+
+<div class="govuk-body">
+    <h2 class="govuk-heading-m"> Time taken to process: @ViewBag.ElapsedTime</h2>
+</div>

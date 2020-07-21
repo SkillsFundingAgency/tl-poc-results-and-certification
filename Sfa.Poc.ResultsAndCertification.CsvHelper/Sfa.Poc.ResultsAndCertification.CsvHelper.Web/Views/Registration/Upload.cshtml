@@ -1,0 +1,28 @@
+﻿@model Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Models.RegistrationsFileViewModel
+
+@{
+    ViewData["Title"] = "Upload";
+}
+
+<h1 class="govuk-heading-xl">Bulk Upload</h1>
+
+<h4 class="govuk-heading-m">RegistrationsFileViewModel</h4>
+
+<div class="govuk-body">
+    <form enctype="multipart/form-data" asp-action="BulkRegistrations">
+        <div class="row">
+            <div class="col-md-4">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-group">
+                    <label asp-for="RegistrationFile" class="col-sm-2 col-form-label"> Please select a file</label>
+                    <input asp-for="RegistrationFile" class="form-control" accept=".csv" />
+                </div>
+                <span asp-validation-for="RegistrationFile"></span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="govuk-\!-padding-7"></div>
+            <input type="submit" value="Create" class="govuk-button" />
+        </div>
+    </form>
+</div>

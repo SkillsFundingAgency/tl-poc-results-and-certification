@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="9.0.0" />
+    <PackageReference Include="FluentValidation" Version="8.6.2" />
+    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Storage" Version="3.0.11" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Sfa.Poc.ResultsAndCertification.CsvHelper.Data\Sfa.Poc.ResultsAndCertification.CsvHelper.Data.csproj" />
+    <ProjectReference Include="..\Sfa.Poc.ResultsAndCertification.CsvHelper.Domain\Sfa.Poc.ResultsAndCertification.CsvHelper.Domain.csproj" />
+    <ProjectReference Include="..\Sfa.Poc.ResultsAndCertification.CsvHelper.Models\Sfa.Poc.ResultsAndCertification.CsvHelper.Models.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Mappers\" />
+  </ItemGroup>
+
+</Project>
