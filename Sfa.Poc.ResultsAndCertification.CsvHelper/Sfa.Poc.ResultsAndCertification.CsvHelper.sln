@@ -19,7 +19,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sfa.Poc.ResultsAndCertifica
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sfa.Poc.ResultsAndCertification.CsvHelper.Web", "Sfa.Poc.ResultsAndCertification.CsvHelper.Web\Sfa.Poc.ResultsAndCertification.CsvHelper.Web.csproj", "{D3D2AAAC-8DE9-4007-9F95-3EE7E2885567}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sfa.Poc.ResultsAndCertification.CsvHelper.Common", "Sfa.Poc.ResultsAndCertification.CsvHelper.Common\Sfa.Poc.ResultsAndCertification.CsvHelper.Common.csproj", "{DDBBF46C-FBDE-432E-95A6-B36C19A8ED09}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sfa.Poc.ResultsAndCertification.CsvHelper.Common", "Sfa.Poc.ResultsAndCertification.CsvHelper.Common\Sfa.Poc.ResultsAndCertification.CsvHelper.Common.csproj", "{DDBBF46C-FBDE-432E-95A6-B36C19A8ED09}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

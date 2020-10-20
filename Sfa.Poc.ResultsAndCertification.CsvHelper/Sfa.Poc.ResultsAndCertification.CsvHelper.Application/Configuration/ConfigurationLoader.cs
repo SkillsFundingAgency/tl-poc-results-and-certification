@@ -1,6 +1,5 @@
 ﻿using System;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Table;
+using Microsoft.Azure.Cosmos.Table;
 using Newtonsoft.Json;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Models.Configuration;
 
