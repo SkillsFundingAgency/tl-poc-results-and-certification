@@ -9,6 +9,10 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Models.Configuration
 
         public DfeSignInSettings DfeSignInSettings { get; set; }
 
+        public LearningRecordServiceSettings LearningRecordServiceSettings { get; set; }
+
         public string ResultsAndCertificationInternalApiUri { get; set; }
+
+        public string KeyVaultUri { get; set; }
     }
 }
