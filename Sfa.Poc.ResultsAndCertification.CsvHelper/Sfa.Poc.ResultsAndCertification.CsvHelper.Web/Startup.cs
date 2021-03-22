@@ -1,31 +1,28 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Lrs.LearnerService.Api.Client;
+using Lrs.PersonalLearningRecordService.Api.Client;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Hosting;
-using Sfa.Poc.ResultsAndCertification.CsvHelper.Models.Configuration;
+using Microsoft.Extensions.Logging;
+using Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Client.Clients;
+using Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Client.Interfaces;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Application.Configuration;
+using Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Service;
+using Sfa.Poc.ResultsAndCertification.CsvHelper.Models.Configuration;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Authentication;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Authentication.Interfaces;
-using System.IdentityModel.Tokens.Jwt;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using System.Threading.Tasks;
-using System;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.Authorization;
-using System.Globalization;
-using Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Client.Interfaces;
-using Sfa.Poc.ResultsAndCertification.CsvHelper.Api.Client.Clients;
+using Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Certificates;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Filters;
 using Sfa.Poc.ResultsAndCertification.CsvHelper.Web.WebConfigurationHelper;
 using Sfa.Tl.ResultsAndCertification.Web.WebConfigurationHelper;
-using Sfa.Poc.ResultsAndCertification.CsvHelper.Common.CsvHelper.Service;
+using System.Globalization;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Sfa.Poc.ResultsAndCertification.Layout.Web
 {
@@ -174,6 +171,23 @@ namespace Sfa.Poc.ResultsAndCertification.Layout.Web
             //services.AddTransient<IProviderLoader, ProviderLoader>();
 
             services.AddTransient<IBlobStorageService, BlobStorageService>();
+
+            var lrsCertificate = CertificateService.GetLearningRecordServiceCertificate(ResultsAndCertificationConfiguration).GetAwaiter().GetResult();
+            services.AddTransient<ILearnerPortTypeClient>(learnerClient =>
+            {
+                var client = new LearnerPortTypeClient();
+                client.ClientCredentials.ClientCertificate.Certificate = lrsCertificate;
+                return client;
+            });
+            services.AddTransient<ILearnerServiceApiClient, LearnerServiceClient>();
+
+            services.AddTransient<ILearnerServiceR9Client>(learnerClient =>
+            {
+                var client = new LearnerServiceR9Client();
+                client.ClientCredentials.ClientCertificate.Certificate = lrsCertificate;
+                return client;
+            });
+            services.AddTransient<IPersonalLearningRecordApiClient, PersonalLearningRecordServiceClient>();
         }
     }
 }

@@ -49,7 +49,7 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Authentication
                 options.ExpireTimeSpan = TimeSpan.FromMinutes(cookieAndSessionTimeout);                
                 options.LogoutPath = config.DfeSignInSettings.LogoutPath;
                 options.AccessDeniedPath = "/home/accessdenied";
-                options.EventsType = typeof(CustomCookieAuthenticationEvents); 
+                //options.EventsType = typeof(CustomCookieAuthenticationEvents); 
             })
             .AddOpenIdConnect(options =>
             {
@@ -68,10 +68,10 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Authentication
                 options.Scope.Add("profile");
 
                 options.Scope.Add("organisation");
-                options.Scope.Add("offline_access");
+                //options.Scope.Add("offline_access");
 
                 // Prompt=consent is required to be issued with a refresh token
-                options.Prompt = "consent";               
+                //options.Prompt = "consent";               
 
                 // When we expire the session, ensure user is prompted to sign in again at DfE Sign In
                 options.MaxAge = overallSessionTimeout;
@@ -216,8 +216,8 @@ namespace Sfa.Poc.ResultsAndCertification.CsvHelper.Web.Authentication
                         // store both access and refresh token in the claims - hence in the cookie
                         identity.AddClaims(new[]
                         {
-                                new Claim("access_token", x.TokenEndpointResponse.AccessToken),
-                                new Claim("refresh_token", x.TokenEndpointResponse.RefreshToken),
+                                //new Claim("access_token", x.TokenEndpointResponse.AccessToken),
+                                //new Claim("refresh_token", x.TokenEndpointResponse.RefreshToken),
                                 new Claim("UKPRN", userClaims.UKPRN),
                                 new Claim("user_id", userClaims.UserId.ToString()),
                                 new Claim("OrganisationId", organisation.Id.ToString().ToUpper())
